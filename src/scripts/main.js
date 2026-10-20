@@ -46,7 +46,9 @@ const TILES = { day: OSM, night: OSM };
 const ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 function initMap() {
   const el = $('#map'); if (!el) return;
-  const here = data.titik.find((t) => t.id === data.status.titikId);
+  const here = data.titik.find((t) => t.id === data.status?.titikId) ?? data.titik[0];
+  if (!here) return;
+  if (!Array.isArray(data.status?.userLatLng)) return;
   const wide = matchMedia('(min-width:960px)').matches;
   map = L.map(el, { zoomControl: wide, scrollWheelZoom: false, dragging: wide || !L.Browser.mobile, tap: false, attributionControl: true, zoomSnap: .25 });
   map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
@@ -248,7 +250,7 @@ form.addEventListener('submit', (e) => {
   const { m, q } = total();
   const nama = form.nama.value.trim();
   if (!nama) { form.nama.focus(); form.nama.setAttribute('aria-invalid', 'true'); if (!RM) gsap.fromTo(form.nama, { x: -6 }, { x: 0, duration: .4, ease: 'elastic.out(3,.3)' }); return; }
-  const titik = data.titik.find((x) => x.id === form.titik.value).name;
+  const titik = data.titik.find((x) => x.id === form.titik.value)?.name ?? 'Nanti dikabari via WA';
   const txt = `Halo Lizzy! Aku mau pre-order ya 🐱☕\n\nNama: ${nama}\nPesanan: ${q}x ${m.name}\nTitik ambil: ${titik}\nWaktu ambil: ${form.waktu.value}\nTotal: ${rp(m.price * q)}\n\nMakasih!`;
   const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(txt)}`;
   $('#ovWa').href = url;

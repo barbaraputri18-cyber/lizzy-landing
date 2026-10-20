@@ -3,9 +3,13 @@ import { getLanding, img } from '../lib/landing.js';
 const data = await getLanding();
 const D = data as any;
 // location promos are data-driven: title/label/hours come from titik + jadwal
-const promos = (D.promos ?? []).map((p: any) => {
+const titik = D.titik ?? [], jadwalL = D.jadwal ?? [];
+const promos = (D.promos ?? []).filter((p: any) => {
+  const loc = p.titikId || p.type === 'location' || p.type === 'lokasi';
+  return !loc || titik.some((x: any) => x.id === p.titikId);
+}).map((p: any) => {
   if (!p.titikId) return p;
-  const t = D.titik.find((x: any) => x.id === p.titikId), j = D.jadwal.find((x: any) => x.titikId === p.titikId);
+  const t = titik.find((x: any) => x.id === p.titikId), j = jadwalL.find((x: any) => x.titikId === p.titikId);
   if (!t) return p;
   const place = t.name.replace(/^Titik\s*\d+\s*/i, '');
   const day = j?.days?.includes('–') ? 'Minggu' : (j?.days ?? '');
