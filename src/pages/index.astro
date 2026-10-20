@@ -15,6 +15,7 @@ const rp = (n) => 'Rp ' + n.toLocaleString('id-ID').replace(/,/g, '.');
 const t = Object.fromEntries(data.titik.map((x) => [x.id, x]));
 const st = t[data.status.titikId];
 const site = 'https://lizzy.my.id/';
+const socials = (data.brand.socials ?? [{ label: 'Instagram', url: data.brand.instagram }, { label: 'TikTok', url: data.brand.tiktok }]).filter((x) => x && x.url);
 const desc = `Lizzy Coffee, kopi keliling di Tangerang Selatan (Tangsel). Kopi susu gula aren, matcha latte, butterscotch latte mulai ${rp(Math.min(...data.menuLengkap.map((m) => m.price)))}. Pre-order lewat WhatsApp, ambil tanpa antre.`;
 const ld = {
   '@context': 'https://schema.org',
@@ -32,7 +33,7 @@ const ld = {
   currenciesAccepted: 'IDR',
   address: { '@type': 'PostalAddress', addressLocality: 'Tangerang Selatan', addressRegion: 'Banten', addressCountry: 'ID' },
   areaServed: [{ '@type': 'City', name: 'Tangerang Selatan' }],
-  sameAs: [data.brand.instagram, data.brand.tiktok].filter(Boolean),
+  sameAs: socials.map((x) => x.url),
   potentialAction: { '@type': 'OrderAction', target: `https://wa.me/${data.brand.waNumber}` },
   hasMenu: {
     '@type': 'Menu',
@@ -228,7 +229,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
       <p class="lead">Pesan dari sekarang, kopimu udah siap pas kamu sampai. Lewat jalur khusus, tanpa antre.</p>
       <ul class="c-next">{data.jadwal.map((j, i) => <li class={i === 0 ? 'now' : ''}><span class="cdot"></span><b>{t[j.titikId].name}</b><small>{j.days} · {j.time}</small>{i === 0 && <em>hari ini</em>}</li>)}</ul>
       <div class="c-cta"><a href="#preorder" class="btn primary">Pre-order sekarang <span>→</span></a><a href={`https://wa.me/${data.brand.waNumber}`} target="_blank" rel="noopener" class="btn ghost">Chat WhatsApp</a></div>
-      <div class="c-soc"><a href={data.brand.instagram} target="_blank" rel="noopener">Instagram</a><a href={data.brand.tiktok} target="_blank" rel="noopener">TikTok</a><span>contoh · jadwal bisa berubah</span></div>
+      <div class="c-soc">{socials.map((x) => <a href={x.url} target="_blank" rel="noopener">{x.label}</a>)}<span>contoh · jadwal bisa berubah</span></div>
     </div>
   </div>
 </section>
@@ -238,7 +239,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
   <div class="f-grid">
     <div class="f-brand"><img src="img/logo.webp" alt="Lizzy Coffee" width="56" height="56" class="flogo" /><div><b>LIZZY COFFEE</b><p>Kopi keliling yang dibikin pas kamu pesan. Tangerang Selatan.</p></div></div>
     <nav class="f-col"><b>Jelajah</b><a href="#menu">Signature</a><a href="#menu-lengkap">Menu lengkap</a><a href="#jadwal">Jadwal mangkal</a><a href="#preorder">Pre-order</a></nav>
-    <div class="f-col"><b>Kontak</b><a href={`https://wa.me/${data.brand.waNumber}`} target="_blank" rel="noopener">WhatsApp (contoh)</a><a href={data.brand.instagram} target="_blank" rel="noopener">Instagram</a><a href={data.brand.tiktok} target="_blank" rel="noopener">TikTok</a></div>
+    <div class="f-col"><b>Kontak</b><a href={`https://wa.me/${data.brand.waNumber}`} target="_blank" rel="noopener">WhatsApp{data.contoh !== false && data._source !== 'api' ? ' (contoh)' : ''}</a>{socials.map((x) => <a href={x.url} target="_blank" rel="noopener">{x.label}</a>)}</div>
     <div class="f-col"><b>Pembayaran</b><div class="pays">{data.brand.payments.map((p) => <span>{p}</span>)}</div><small>Bayar di tempat pas ambil.</small></div>
   </div>
   <div class="f-bot"><span>© 2026 Lizzy Coffee</span><span>Data di halaman ini contoh · peta © OpenStreetMap</span></div>

@@ -8,6 +8,16 @@
     "payments": [
       "Tunai",
       "QRIS"
+    ],
+    "socials": [
+      {
+        "label": "Instagram",
+        "url": "https://instagram.com/lizzycoffee"
+      },
+      {
+        "label": "TikTok",
+        "url": "https://tiktok.com/@lizzycoffee"
+      }
     ]
   },
   "status": {
