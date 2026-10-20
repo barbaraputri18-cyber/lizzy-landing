@@ -33,7 +33,8 @@ const mIdx = (m) => data.menuLengkap.filter((x) => x.cat === m.cat).indexOf(m);
 // Find Lizzy today: titik dari status (build-time); live.js bisa isi/ubah dari /api/public/status
 const today = st && data.status?.titikId != null && Number.isFinite(+st.lat) && Number.isFinite(+st.lng) ? st : null;
 const dirUrl = (lat, lng) => `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-const md = (x = '') => x.replace(/\*(.+?)\*/g, '<i>$1</i>');
+const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+const md = (x = '') => esc(x).replace(/&lt;br\s*\/?&gt;/gi, '<br/>').replace(/\*(.+?)\*/g, '<i>$1</i>');
 // Pesan online (ojol): URL kosong -> tombol nonaktif + 'Segera hadir'; URL diisi -> link keluar
 const oo = data.orderOnline ?? {};
 const okUrl = (u) => typeof u === 'string' && /^https:\/\/\S+$/i.test(u.trim()) ? u.trim() : '';
@@ -99,7 +100,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 <meta name="twitter:image" content={`${site}og.jpg`} />
 <link rel="apple-touch-icon" href="img/logo.webp" />
 <link rel="sitemap" href="/sitemap.xml" />
-<script type="application/ld+json" set:html={JSON.stringify(ld)} />
+<script type="application/ld+json" set:html={JSON.stringify(ld).replace(/</g, '\\u003c')} />
 <meta name="theme-color" content="#f7f1e6" />
 <link rel="icon" href="img/logo.webp" />
 <script is:inline>
@@ -308,6 +309,6 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 <script>import '../scripts/main.js';</script>
 <script is:inline define:vars={{ LZ_API: API_BASE }}>window.LZ_API = LZ_API;</script>
 <script>import '../scripts/live.js';</script>
-<script type="application/json" id="landing-data" set:html={JSON.stringify(data)}></script>
+<script type="application/json" id="landing-data" set:html={JSON.stringify(data).replace(/</g, '\\u003c')}></script>
 </body>
 </html>

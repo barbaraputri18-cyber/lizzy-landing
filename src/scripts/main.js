@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CustomEase } from 'gsap/CustomEase';
 gsap.registerPlugin(ScrollTrigger, CustomEase);
 CustomEase.create('lzSplit', '0.37,0,0.63,1');
+const txt = (s) => { const el = document.createElement('span'); el.textContent = s ?? ''; return el; };
 // Android/HP: cuma animasi transform & opacity (komposit GPU), tanpa filter/clip-path/layout.
 gsap.config({ force3D: true });
 gsap.ticker.lagSmoothing(500, 33);
@@ -73,10 +74,10 @@ function initMap() {
   if (wide) map.fitBounds(L.latLngBounds([[here.lat, here.lng], me]), { paddingTopLeft: [70, 90], paddingBottomRight: [200, 150], maxZoom: 16 });
   else { map.setView([(here.lat + me[0]) / 2, (here.lng + me[1]) / 2], 14.75, { animate: false }); map.panBy([0, -30], { animate: false }); }
   tiles = L.tileLayer(TILES[root.dataset.theme === 'night' ? 'night' : 'day'], { attribution: ATTR, maxZoom: 19, referrerPolicy: 'strict-origin-when-cross-origin' }).addTo(map);
-  data.titik.filter((t) => t.id !== here.id).forEach((t) => L.marker([t.lat, t.lng], { icon: L.divIcon({ className: '', html: '<div class="lz-spot"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }) }).addTo(map).bindTooltip(t.name, { className: 'lz-tip', direction: 'top', offset: [0, -8] }));
+  data.titik.filter((t) => t.id !== here.id).forEach((t) => L.marker([t.lat, t.lng], { icon: L.divIcon({ className: '', html: '<div class="lz-spot"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }) }).addTo(map).bindTooltip(txt(t.name), { className: 'lz-tip', direction: 'top', offset: [0, -8] }));
   L.marker(me, { icon: L.divIcon({ className: '', html: '<div class="lz-me"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }) }).addTo(map).bindTooltip('Kamu', { className: 'lz-tip', direction: 'bottom', offset: [0, 8] });
   L.polyline([me, [(me[0] + here.lat) / 2 + .0012, (me[1] + here.lng) / 2 - .001], [here.lat, here.lng]], { color: '#b8894a', weight: 3, dashArray: '6 8', lineCap: 'round', smoothFactor: 1 }).addTo(map);
-  L.marker([here.lat, here.lng], { icon: L.divIcon({ className: 'lz-pin-wrap', html: '<div class="lz-pin"><span class="ring"></span><img src="img/logo.webp" alt=""></div>', iconSize: [54, 60], iconAnchor: [27, 64] }), zIndexOffset: 1000 }).addTo(map).bindTooltip(here.name, { className: 'lz-tip', direction: 'top', offset: [0, -60] });
+  L.marker([here.lat, here.lng], { icon: L.divIcon({ className: 'lz-pin-wrap', html: '<div class="lz-pin"><span class="ring"></span><img src="img/logo.webp" alt=""></div>', iconSize: [54, 60], iconAnchor: [27, 64] }), zIndexOffset: 1000 }).addTo(map).bindTooltip(txt(here.name), { className: 'lz-tip', direction: 'top', offset: [0, -60] });
 }
 function mapTheme() { const u = TILES[root.dataset.theme === 'night' ? 'night' : 'day']; if (tiles) tiles.setUrl(u); emptyMaps.forEach((t) => t.setUrl(u)); }
 initMap();
