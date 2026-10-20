@@ -202,11 +202,14 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
   <div class="brew-card">
   <div class="brew-stage" aria-hidden="true">
     <div class="brew-glow"></div>
-    <div class="steam"><i></i><i></i><i></i></div>
+    <img class="blizzy" src="img/cat-peek.webp" alt="" />
+    <span class="bpaw">🐾 Siap!</span>
     <div class="stream"></div>
-    <div class="bcup">
+    <div class="bcup" title="Ketuk buat ganti minuman">
       <img class="ghost" src="img/cup-aren.webp" alt="" />
-      <div class="fillwrap"><img class="full" src="img/cup-aren.webp" alt="" /><span class="wave"></span><span class="swirl"></span></div>
+      <div class="fillwrap"><img class="full" src="img/cup-aren.webp" alt="" /><span class="base"></span><span class="wave"></span><span class="swirl"></span></div>
+      <div class="splash"><i></i><i></i><i></i><i></i></div>
+      <div class="dew"><i></i><i></i><i></i><i></i></div>
       <div class="drops">{Array.from({ length: 3 }).map(() => <span class="ice"></span>)}</div>
     </div>
     <span class="plate"></span>
@@ -214,8 +217,10 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
   <div class="brew-copy">
     <p class="eyebrow">{c.brewEyebrow}</p>
     <h2 class="blur-in" set:html={md(c.brewTitle)} />
-    <p class="brew-now">Lagi diseduh: <b id="brewName">Kopi Susu Gula Aren</b></p>
+    <p class="brew-now">Lagi diseduh: <b id="brewName">Aren's Meow</b></p>
+    <div class="bprog"><span id="brewBar"></span></div>
     <ol class="steps" id="brewSteps"><li data-s="0"><b>01</b><span>Espresso diekstrak</span></li><li data-s="1"><b>02</b><span>Susu &amp; gula aren dituang</span></li><li data-s="2"><b>03</b><span>Es masuk, siap diambil</span></li></ol>
+    <p class="brew-tap">Ketuk cup buat ganti minuman</p>
   </div>
   </div>
 </section>
