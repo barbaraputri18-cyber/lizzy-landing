@@ -94,7 +94,14 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
 .ps-tail{position:absolute;inset:0;transform-origin:74% 86%;-webkit-mask:radial-gradient(ellipse 30% 22% at 88% 92%,#000 55%,transparent 100%);mask:radial-gradient(ellipse 30% 22% at 88% 92%,#000 55%,transparent 100%)}
 .ps-body{-webkit-mask:radial-gradient(ellipse 30% 22% at 88% 92%,transparent 55%,#000 100%);mask:radial-gradient(ellipse 30% 22% at 88% 92%,transparent 55%,#000 100%)}
 .ps-cup{position:absolute;bottom:5%;height:52%;width:auto}
-.ps-cups{display:flex;align-items:flex-end}.ps-cups img{height:100%;width:auto}.ps-cups img+img{margin-left:-14%}.ps-cups img:nth-child(2){height:112%;position:relative;z-index:2}
+/* trio: cat on the left, compact cup cluster on the right; no overlap so the translucent night cat never ghosts over cups */
+.ps-stage:has(.ps-cups){container-type:size;--cw:min(64cqh*1.04,44cqw)}
+.ps-cups{right:auto!important;left:calc(var(--cw) - 1cqw)!important;bottom:6%!important;height:min(70cqh,calc((99cqw - var(--cw))/1.62))!important;aspect-ratio:1.62;width:auto}
+.ps-cups img{position:absolute;bottom:0;height:86%;width:auto;transform-origin:50% 100%}
+.ps-cups img:nth-child(1){left:0;rotate:-7deg}
+.ps-cups img:nth-child(2){left:50%;translate:-50% 0;height:100%;bottom:7%;z-index:2}
+.ps-cups img:nth-child(3){right:0;rotate:7deg}
+.a-push:has(.ps-cups) .ps-actor{left:0!important;height:calc(var(--cw)/1.04)!important;bottom:5%!important;z-index:3}
 .a-push .ps-actor{left:2%;}.a-push .ps-cup{left:58%}
 .a-peek .ps-actor{right:-4%;}.a-peek .ps-cup{left:18%;height:60%}
 .a-lie .ps-actor{left:-2%;height:60%;bottom:4%;z-index:3}
