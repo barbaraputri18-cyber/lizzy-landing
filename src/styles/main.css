@@ -469,3 +469,16 @@ a.ojol-btn:active{transform:scale(.97)}
 .peek img.wiggle,.sitter img.wiggle{animation:lzWiggle .7s ease-in-out}
 @keyframes lzWiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-2.2deg)}45%{transform:rotate(1.8deg)}70%{transform:rotate(-1deg)}}
 @media (prefers-reduced-motion:reduce){.logo,.peek img,.sitter img{animation:none!important}}
+/* ===== live badge buka/istirahat ===== */
+.live-badge{justify-self:start;display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:99px;background:var(--card);border:1px solid var(--line);font:600 12px var(--sans);color:var(--ink2)}
+.live-badge[hidden]{display:none}
+.lb-dot{width:8px;height:8px;border-radius:50%;background:var(--ink2);opacity:.5}
+.live-badge.is-open{color:var(--ink)}.live-badge.is-open .lb-dot{background:#4caf6a;opacity:1;box-shadow:0 0 0 3px rgba(76,175,106,.2)}
+
+/* ===== Find Lizzy today ===== */
+.today{padding:40px 20px}.today[hidden]{display:none}
+.today-card{display:grid;overflow:hidden;padding:0;margin-top:16px}
+.today-map{height:240px;position:relative}
+.today-info{display:grid;gap:6px;padding:16px 18px 18px}.today-info b{font:500 22px/1.2 var(--serif)}.today-info small{color:var(--ink2)}.today-info .btn{margin-top:8px;justify-self:start}
+@media (min-width:960px){.today{padding:60px max(40px,calc((100vw - 1400px)/2))}.today-card{grid-template-columns:1.6fr 1fr;align-items:center}.today-map{height:340px}.today-info{padding:28px}}
+.today-info b:empty,.today-info small:empty{display:none}
