@@ -402,8 +402,12 @@ fieldset{border:0;display:grid;gap:10px}legend,.fld>span{font:600 11px var(--san
 @media (min-width:960px){.hero-visual.no-loc{padding:0;display:block}.hero-visual.no-loc .map-empty{height:100%;border:0;border-radius:0}}
 
 /* Lizzy peeking over the 'segera diumumkan' card */
-.soon-wrap{position:relative;z-index:2;width:calc(100% - 32px);max-width:440px;margin:64px auto 24px}
+.soon-wrap{position:relative;z-index:2;width:calc(100% - 32px);max-width:440px;margin:84px auto 24px}
 .soon-wrap .soon{width:100%;margin:0;position:relative;z-index:1}
-.soon-peek{position:absolute;right:22px;bottom:calc(100% - 14px);width:104px;height:84px;overflow:hidden;z-index:0;pointer-events:none}
+/* cat is a sibling of the card (not inside its backdrop-filter stacking context), drawn above it;
+   crop line sits exactly on the card's top edge so Lizzy looks tucked behind it */
+.soon-peek{position:absolute;right:18px;bottom:calc(100% - 16px);width:132px;height:75px;overflow:hidden;z-index:3;pointer-events:none;
+  -webkit-mask:linear-gradient(#000 calc(100% - 9px),transparent);mask:linear-gradient(#000 calc(100% - 9px),transparent);
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.18))}
 .soon-peek img{display:block;width:100%;height:auto}
-@media (min-width:960px){.soon-peek{width:120px;height:96px;right:30px}}
+@media (min-width:960px){.soon-peek{width:156px;height:88px;right:34px;bottom:calc(100% - 19px)}.soon-wrap{margin-top:100px}}

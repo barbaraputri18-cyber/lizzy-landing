@@ -27,16 +27,17 @@ def shade(p):
   out[eye]=out[eye]*.8+np.array([150,190,225.])*.2
   day=np.dstack([np.clip(out,0,255),im[...,3]]).astype('uint8')
   Image.fromarray(day,'RGBA').save(f'public/img/cat-{p}.webp','WEBP',quality=90,method=6,exact=True)
-  # night: same cream recolour as before (lines -> warm tan, fur -> ivory), then the point shading on top
-  L0=rgb.mean(2,keepdims=True);t=np.clip((L0-60)/170,0,1)
-  n=np.array([196,164,120.])*(1-t)+np.array([248,240,226.])*t
-  n=n*.85+(rgb*(t>0.3)+n*(t<=0.3))*.15
-  NT=np.array([128,116,108.])*(0.55+0.45*t)
-  mn=np.clip(m[...,None]*1.1,0,.92)
-  n=n*(1-mn)+NT*mn
-  n[eye]=out[eye]*.7+np.array([170,205,235.])*.3
-  # night: densify faded fur so the body doesn't read as see-through/'broken' on dark bg (lines + points kept)
-  a=im[...,3];light=np.clip((L0[...,0]-120)/80,0,1);an=np.where(a<16,a,np.clip(a*(1+.9*light),0,255))
-  Image.fromarray(np.dstack([np.clip(n,0,255),an]).astype('uint8'),'RGBA').save(f'public/img/cat-{p}-n.webp','WEBP',quality=90,method=6,exact=True)
+  # night = line-art on dark: strokes -> cream, fur fill -> dark warm & translucent, colour points -> grey-taupe
+  L0=rgb.mean(2);t=np.clip((L0-150)/85,0,1)**.8        # 0 = line/fur stroke, 1 = flat fill
+  line=np.array([246,236,218.]);fur=np.array([150,130,112.])
+  n=line*(1-t[...,None])+fur*t[...,None]
+  a=im[...,3]
+  an=a*(1-.62*t)                                        # lines stay solid, fill goes see-through
+  NT=np.array([158,144,134.])
+  mn=np.clip(m*1.15,0,.9)
+  n=n*(1-mn[...,None])+NT*mn[...,None]                  # points clearly grey-taupe
+  an=np.maximum(an,a*np.clip(mn*1.25,0,1))
+  n[eye]=np.array([170,205,235.]);an[eye]=a[eye]
+  Image.fromarray(np.dstack([np.clip(n,0,255),np.clip(an,0,255)]).astype('uint8'),'RGBA').save(f'public/img/cat-{p}-n.webp','WEBP',quality=90,method=6,exact=True)
 for p in R: shade(p)
 print('ok')
