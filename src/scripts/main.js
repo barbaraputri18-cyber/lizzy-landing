@@ -45,8 +45,21 @@ $('#themeBtn').addEventListener('click', (e) => {
 const OSM = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILES = { day: OSM, night: OSM };
 const ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+// Tanpa titik: peta area layanan Tangsel (tanpa pin), card 'Jadwal segera diumumkan' di atasnya.
+const TANGSEL = [-6.30, 106.70];
+const emptyMaps = [];
+function initEmptyMap(el) {
+  const m = L.map(el, { zoomControl: false, scrollWheelZoom: false, dragging: false, touchZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false, tap: false, attributionControl: true, zoomSnap: .25 });
+  m.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
+  m.setView(TANGSEL, el.clientWidth < 600 ? 11.5 : 12, { animate: false });
+  const tl = L.tileLayer(TILES[root.dataset.theme === 'night' ? 'night' : 'day'], { attribution: ATTR, maxZoom: 19, referrerPolicy: 'strict-origin-when-cross-origin' }).addTo(m);
+  L.circle(TANGSEL, { radius: 6500, color: '#b8894a', weight: 2.5, opacity: .8, dashArray: '6 8', fillColor: '#c99a55', fillOpacity: .2, interactive: false }).addTo(m);
+  emptyMaps.push(tl);
+  new ResizeObserver(() => { m.invalidateSize(false); m.setView(TANGSEL, el.clientWidth < 600 ? 11.5 : 12, { animate: false }); }).observe(el);
+}
 function initMap() {
-  const el = $('#map'); if (!el) return;
+  $$('.map[data-empty]').forEach(initEmptyMap);
+  const el = $('#map:not([data-empty])'); if (!el) return;
   const here = data.titik.find((t) => t.id === data.status?.titikId) ?? data.titik[0];
   if (!here) return;
   if (!Array.isArray(data.status?.userLatLng)) return;
@@ -62,7 +75,7 @@ function initMap() {
   L.polyline([me, [(me[0] + here.lat) / 2 + .0012, (me[1] + here.lng) / 2 - .001], [here.lat, here.lng]], { color: '#b8894a', weight: 3, dashArray: '6 8', lineCap: 'round', smoothFactor: 1 }).addTo(map);
   L.marker([here.lat, here.lng], { icon: L.divIcon({ className: 'lz-pin-wrap', html: '<div class="lz-pin"><span class="ring"></span><img src="img/logo.webp" alt=""></div>', iconSize: [54, 60], iconAnchor: [27, 64] }), zIndexOffset: 1000 }).addTo(map).bindTooltip(here.name, { className: 'lz-tip', direction: 'top', offset: [0, -60] });
 }
-function mapTheme() { if (tiles) tiles.setUrl(TILES[root.dataset.theme === 'night' ? 'night' : 'day']); }
+function mapTheme() { const u = TILES[root.dataset.theme === 'night' ? 'night' : 'day']; if (tiles) tiles.setUrl(u); emptyMaps.forEach((t) => t.setUrl(u)); }
 initMap();
 
 /* ---------- blur-to-sharp text ---------- */
