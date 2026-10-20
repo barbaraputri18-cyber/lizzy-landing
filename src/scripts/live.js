@@ -27,7 +27,7 @@ const hhmm = (v) => String(v ?? '').trim().replace(/^(\d{1,2})[:.](\d{2}).*$/, (
 function badge(s) {
   const b = document.querySelector('[data-live-badge]'); if (!b || typeof s.open !== 'boolean') return;
   const until = s.openUntil ? hhmm(s.openUntil) : '';
-  b.querySelector('[data-live-badge-txt]').textContent = s.open ? (until ? `Lizzy lagi buka, sampai ${until}` : 'Lizzy lagi buka') : 'Lagi istirahat';
+  b.querySelector('[data-live-badge-txt]').textContent = s.open ? (until ? `Lizzy lagi buka, sampai ${until}` : 'Lizzy lagi buka') : ((s.titikId == null && s.lat == null) ? 'Segera buka' : 'Lagi istirahat');
   b.classList.toggle('is-open', s.open); b.hidden = false;
 }
 
