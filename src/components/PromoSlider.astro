@@ -1,0 +1,266 @@
+---
+import data from '../data/landing.json';
+const D = data as any;
+// location promos are data-driven: title/label/hours come from titik + jadwal
+const promos = (D.promos ?? []).map((p: any) => {
+  if (!p.titikId) return p;
+  const t = D.titik.find((x: any) => x.id === p.titikId), j = D.jadwal.find((x: any) => x.titikId === p.titikId);
+  if (!t) return p;
+  const place = t.name.replace(/^Titik\s*\d+\s*/i, '');
+  const day = j?.days?.includes('–') ? 'Minggu' : (j?.days ?? '');
+  const hours = (j?.time ?? '').replace(/\s*–\s*/g, '–');
+  return { ...p, title: p.title ?? `${j?.days?.includes('–') ? 'Minggu ini' : day + ' ini'} di *${place}*`, desc: p.desc ?? `${t.name} · ${hours}`, address: t.address, place };
+});
+const md = (s = '') => s.replace(/\*(.+?)\*/g, '<i>$1</i>');
+const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
+---
+<section class="pslider" id="promo" aria-roledescription="carousel" aria-label="Promo Lizzy Coffee">
+  <div class="ps-viewport">
+    {promos.map((p: any, i: number) => (
+      <div class={`ps-slide ps-${p.type} ${p.anim ? 'a-' + p.anim : ''}`} data-slide={i} role="group" aria-roledescription="slide" aria-label={`${i + 1} dari ${promos.length}`} aria-hidden={i ? 'true' : 'false'}>
+        {p.type === 'image' ? (
+          <a class="ps-full" href={p.href || '#'}>
+            <img class="ps-bg" src={p.src} alt={p.alt || p.title} />
+            <span class="ps-cap"><small>Banner promo</small><b>{p.title}</b><em>Slot gambar sendiri (contoh)</em></span>
+            {p.contoh && <span class="chip ps-chip">contoh</span>}
+            {p.peek && <img class="ps-corner cat" src="img/cat-peek.webp" data-day="img/cat-peek.webp" data-night="img/cat-peek-n.webp" alt="" />}
+          </a>
+        ) : (
+          <div class="ps-inner">
+            <div class="ps-copy">
+              <p class="eyebrow">{p.eyebrow}{p.contoh && <span class="chip">contoh</span>}</p>
+              <h2 set:html={md(p.title)} />
+              <p class="lead">{p.desc}</p>
+              {p.priceOld && <p class="ps-price"><s><span>{rp(p.priceOld)}</span><i class="ps-strike"></i></s><b>{rp(p.priceNew)}</b></p>}
+              <a class="btn primary" href={p.href}>{p.cta}</a>
+            </div>
+            <div class="ps-stage">
+              {p.anim === 'lie' && (
+                <div class="ps-minimap" aria-hidden="true">
+                  <svg class="mm-streets" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
+                    <g class="mm-blocks">{[[14,14,60,36],[86,10,70,30],[170,18,50,40],[236,8,56,44],[10,66,48,52],[70,60,64,44],[150,74,62,34],[226,66,64,48],[18,138,70,48],[104,124,54,64],[170,124,62,36],[244,130,50,58]].map(([x,y,w,h]) => <rect x={x} y={y} width={w} height={h} rx="5"/>)}</g>
+                    <g class="mm-roads"><path d="M-10 56 C80 50 180 62 310 54"/><path d="M-10 118 C100 112 200 122 310 112"/><path d="M64 -10 C70 80 58 140 74 210"/><path d="M222 -10 C214 70 232 140 220 210"/><path class="thin" d="M144 -10 C150 60 140 140 162 210"/></g>
+                    <path class="mm-route" d="M30 190 C70 150 120 140 160 118 S196 92 196 86"/>
+                  </svg>
+                  <span class="mm-label">{p.place} <small>contoh</small></span>
+                  <span class="mm-spot"><i class="mm-ring"></i><i class="mm-ring r2"></i></span>
+                  <svg class="ps-pin" viewBox="0 0 24 32"><path d="M12 0C5.4 0 0 5.2 0 11.7 0 20.5 12 32 12 32s12-11.5 12-20.3C24 5.2 18.6 0 12 0z"/><circle cx="12" cy="11.5" r="4.5"/></svg>
+                </div>
+              )}
+              {p.cup && <img class="ps-cup" src={`img/${p.cup}.webp`} alt="" />}
+              <div class="ps-actor">
+                <img class={`ps-cat cat ${p.anim === 'peek' ? 'ps-body' : ''}`} src={`img/${p.pose}.webp`} data-day={`img/${p.pose}.webp`} data-night={`img/${p.pose}-n.webp`} alt="Ilustrasi Lizzy" />
+                {p.anim === 'peek' && <img class="ps-tail cat" src={`img/${p.pose}.webp`} data-day={`img/${p.pose}.webp`} data-night={`img/${p.pose}-n.webp`} alt="" aria-hidden="true" />}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+  <div class="ps-ui">
+    <button class="ps-arrow" data-prev aria-label="Promo sebelumnya"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="ps-dots">{promos.map((_: any, i: number) => <button data-dot={i} aria-label={`Ke promo ${i + 1}`} />)}</div>
+    <button class="ps-arrow" data-next aria-label="Promo berikutnya"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <div class="ps-progress" aria-hidden="true"><span></span></div>
+</section>
+
+<style>
+.pslider{position:relative;width:100%;background:linear-gradient(180deg,var(--bg),var(--bg2));border-block:1px solid var(--line);overflow:hidden}
+.ps-viewport{position:relative;height:clamp(320px,24vw,360px)}
+.ps-slide{position:absolute;inset:0;opacity:0;visibility:hidden}
+.ps-slide.on{opacity:1;visibility:visible}
+.ps-inner{height:100%;max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:32px;padding:26px clamp(20px,5vw,72px) 56px}
+.ps-copy{display:grid;gap:14px;align-content:center;max-width:520px}
+.ps-copy h2{font-size:clamp(28px,3vw,48px)}
+.ps-copy h2 :global(i){font-style:italic;color:var(--gold)}
+.ps-copy .btn{justify-self:start}
+.ps-price{display:flex;gap:14px;align-items:baseline;font-family:var(--serif)}
+.ps-price s{position:relative;color:var(--ink2);font-size:20px;text-decoration:none}
+.ps-strike{position:absolute;left:-4%;right:-4%;top:52%;height:2.5px;border-radius:2px;background:#c0392b;transform-origin:0 50%;transform:rotate(-6deg) scaleX(0)}
+.ps-price b{font-weight:600;font-size:clamp(26px,2.6vw,36px);color:var(--ink)}
+.ps-stage{position:relative;height:100%;min-height:0}
+.ps-stage::before{content:'';position:absolute;left:8%;right:8%;bottom:6%;height:14px;border-radius:50%;background:radial-gradient(rgba(58,34,25,.22),transparent 70%)}
+.ps-actor{position:absolute;bottom:4%;width:auto;height:88%;z-index:2}
+.ps-actor img{display:block;height:100%;width:auto;transform-origin:50% 100%}
+.ps-tail{position:absolute;inset:0;clip-path:inset(79% 0 0 73%);transform-origin:74% 86%}
+.ps-body{clip-path:polygon(0 0,100% 0,100% 79%,73% 79%,73% 100%,0 100%)}
+.ps-cup{position:absolute;bottom:5%;height:52%;width:auto;filter:drop-shadow(0 18px 22px rgba(58,34,25,.28))}
+.a-push .ps-actor{left:2%;}.a-push .ps-cup{left:58%}
+.a-peek .ps-actor{right:-4%;}.a-peek .ps-cup{left:18%;height:60%}
+.a-lie .ps-actor{left:-2%;height:60%;bottom:4%;z-index:3}
+.ps-minimap{position:absolute;right:2%;top:12%;bottom:14%;width:64%;border-radius:18px;overflow:hidden;background:var(--bg2);border:1px solid var(--line);box-shadow:0 18px 36px -18px rgba(58,34,25,.45)}
+.mm-streets{position:absolute;inset:0;width:100%;height:100%}
+.mm-blocks rect{fill:color-mix(in srgb,var(--line) 55%,var(--bg2))}
+.mm-roads path{fill:none;stroke:var(--card);stroke-width:9;stroke-linecap:round}.mm-roads .thin{stroke-width:5}
+.mm-route{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-dasharray:5 6;stroke-linecap:round}
+.mm-label{position:absolute;left:12px;top:10px;font:600 10px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--ink2);background:color-mix(in srgb,var(--card) 80%,transparent);padding:5px 8px;border-radius:99px}
+.mm-label small{font-size:8px;opacity:.7;margin-left:4px}
+.mm-spot{position:absolute;left:65%;top:43%;width:0;height:0}
+.mm-ring{position:absolute;left:-16px;top:-6px;width:32px;height:12px;border-radius:50%;border:2px solid var(--gold);opacity:0;animation:mmping 2.2s ease-out infinite}
+.mm-ring.r2{animation-delay:1.1s}
+@keyframes mmping{0%{transform:scale(.3);opacity:.9}100%{transform:scale(2.2);opacity:0}}
+[data-theme=night] .ps-minimap{background:#1c140f}
+[data-theme=night] .mm-blocks rect{fill:#2a1e17}[data-theme=night] .mm-roads path{stroke:#3a2a20}
+.ps-pin{position:absolute;left:65%;top:43%;width:30px;margin:-42px 0 0 -15px;fill:var(--gold);filter:drop-shadow(0 6px 6px rgba(0,0,0,.25));transform-origin:50% 100%}
+.ps-pin circle{fill:var(--card)}
+.ps-full{position:absolute;inset:0;display:block}
+.ps-full{background:radial-gradient(60% 90% at 72% 60%,color-mix(in srgb,var(--gold) 28%,var(--bg2)),var(--bg2));text-decoration:none;color:var(--ink)}
+.ps-bg{position:absolute;right:10%;bottom:4%;height:84%;width:auto;filter:drop-shadow(0 26px 30px rgba(58,34,25,.3))}
+.ps-cap{position:absolute;left:clamp(20px,8vw,140px);top:50%;transform:translateY(-50%);display:grid;gap:8px;max-width:46%}.ps-cap small{font:600 11px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--ink2)}.ps-cap b{font:400 clamp(34px,4.4vw,64px)/1.05 var(--serif)}.ps-cap em{font-style:normal;font-size:13px;color:var(--ink2)}
+.ps-chip{position:absolute;top:20px;left:20px}
+.ps-corner{position:absolute;right:0;bottom:0;width:clamp(90px,12vw,170px)}
+.ps-ui{position:absolute;left:0;right:0;bottom:16px;display:flex;justify-content:center;align-items:center;gap:16px;z-index:3}
+.ps-arrow{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 85%,transparent);backdrop-filter:blur(8px);cursor:pointer;display:grid;place-items:center}
+.ps-arrow svg{width:18px;height:18px;fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ps-dots{display:flex;gap:8px}
+.ps-dots button{width:8px;height:8px;padding:0;border:0;border-radius:99px;background:var(--line);cursor:pointer;transition:width .35s var(--ease),background .35s}
+.ps-dots button.on{width:26px;background:var(--gold)}
+.ps-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:color-mix(in srgb,var(--line) 70%,transparent)}
+.ps-progress span{display:block;height:100%;width:100%;background:var(--gold);transform-origin:0 50%;transform:scaleX(0)}
+@media(max-width:760px){
+  .ps-bg{right:50%;translate:50% 0;bottom:16%;height:46%}.ps-cap{top:22%;max-width:86%}
+  .ps-viewport{height:440px}
+  .ps-inner{grid-template-columns:1fr;grid-template-rows:auto 1fr;gap:10px;padding:22px 20px 60px}
+  .ps-copy{gap:6px}.ps-copy .lead{font-size:13.5px}.ps-stage{min-height:150px}
+  .ps-ui{bottom:14px}.ps-arrow{width:40px;height:40px}
+}
+@media(min-width:1800px){.ps-viewport{height:380px}.ps-inner{max-width:1560px}}
+
+/* ===== card banner layout (desktop + compact mobile) ===== */
+.pslider{--pgut:max(40px,calc((100vw - 1400px)/2));padding:28px var(--pgut) 12px!important;background:none!important;border:0!important}
+.ps-viewport{height:clamp(340px,24vw,380px);border-radius:28px;overflow:hidden;border:1px solid var(--line);box-shadow:0 24px 50px -28px rgba(58,34,25,.45);background:radial-gradient(70% 120% at 82% 70%,color-mix(in srgb,var(--gold) 20%,var(--card)),var(--card) 60%,var(--bg2))}
+:global([data-theme=night]) .ps-viewport{background:radial-gradient(70% 120% at 82% 70%,rgba(224,180,106,.16),#211712 60%,#180f0b);box-shadow:0 24px 50px -24px rgba(0,0,0,.7)}
+.ps-inner{max-width:none!important;grid-template-columns:1fr 1.15fr;gap:24px;padding:34px 48px 84px!important}
+.ps-copy h2{font-size:clamp(34px,3.4vw,54px)}
+.ps-stage{height:calc(100% + 118px);margin:-34px 0 -84px;min-height:0}
+.ps-stage::before{bottom:5%}
+.ps-cup{height:min(82%,320px);bottom:6%}
+.a-push .ps-actor{left:4%;height:76%;bottom:5%}.a-push .ps-cup{left:auto;right:14%}
+.a-peek .ps-actor{right:-2%;height:84%;bottom:0}.a-peek .ps-cup{left:16%;height:min(82%,320px)}
+.a-lie .ps-actor{left:-4%;height:52%;bottom:3%}
+.ps-minimap{top:9%;bottom:12%;right:4%;width:66%}
+.ps-ui{left:calc(var(--pgut) + 48px)!important;right:auto!important;bottom:36px!important;justify-content:flex-start!important}
+.ps-progress{left:calc(var(--pgut) + 1px)!important;right:calc(var(--pgut) + 1px)!important;bottom:13px!important;border-radius:0 0 28px 28px;overflow:hidden}
+@media(min-width:1800px){.ps-viewport{height:380px}}
+@media(max-width:760px){
+  .pslider{padding:16px 14px 10px!important}
+  .ps-viewport{height:440px;border-radius:24px}
+  .ps-inner{grid-template-columns:1fr!important;grid-template-rows:auto 170px!important;align-content:start;gap:6px!important;padding:20px 18px 0!important}
+  .ps-copy{gap:6px}.ps-copy h2{font-size:28px}.ps-copy .btn{height:42px;font-size:14px}
+  .ps-stage{height:170px!important;margin:0!important;min-height:0!important}
+  .ps-cup{height:150px}.a-push .ps-actor{height:140px;left:0}.a-push .ps-cup{right:14%}
+  .a-peek .ps-actor{height:165px}.a-peek .ps-cup{height:150px;left:10%}
+  .a-lie .ps-actor{height:100px;left:-4%}.ps-minimap{top:4%;bottom:8%;width:70%}
+  .ps-ui{left:0!important;right:0!important;justify-content:center!important;bottom:24px!important}
+  .ps-progress{left:15px!important;right:15px!important;bottom:11px!important;border-radius:0 0 24px 24px}
+  .ps-cap{top:16%!important}.ps-bg{height:42%!important;bottom:20%!important}
+}
+</style>
+
+<script>
+import { gsap } from 'gsap';
+const root = document.getElementById('promo');
+if (root) {
+  const slides = [...root.querySelectorAll<HTMLElement>('[data-slide]')];
+  const dots = [...root.querySelectorAll<HTMLElement>('[data-dot]')];
+  const bar = root.querySelector<HTMLElement>('.ps-progress span')!;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DUR = 5;
+  let cur = -1, tl: gsap.core.Timeline | null = null, prog: gsap.core.Tween | null = null;
+
+  let idle: gsap.core.Timeline | null = null, visible = false;
+  const reset = (s: HTMLElement) => gsap.set(s.querySelectorAll('.ps-copy > *, .ps-actor, .ps-actor img, .ps-cup, .ps-pin, .ps-minimap, .ps-strike, .ps-price b, .ps-bg, .ps-corner'), { clearProps: 'transform,opacity,translate,rotate,scale' });
+  const intro = (s: HTMLElement) => {
+    reset(s);
+    const t = gsap.timeline();
+    const q = (sel: string) => s.querySelector(sel);
+    const actor = q('.ps-actor'), cat = q('.ps-cat');
+    t.fromTo(s.querySelectorAll('.ps-copy > *'), { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: .7, stagger: .08, ease: 'power3.out' });
+    if (s.classList.contains('a-push')) {
+      const stage = q('.ps-stage') as HTMLElement, cup = q('.ps-cup') as HTMLElement;
+      const W = stage.clientWidth;
+      gsap.set(cup, { x: -W * .32, rotate: -4 });
+      // walk in with step cycle
+      const step = gsap.timeline({ repeat: 7 }).to(cat, { y: -12, rotate: -3, duration: .16, ease: 'sine.out' }).to(cat, { y: 0, rotate: 1.5, duration: .16, ease: 'sine.in' });
+      t.fromTo(actor, { x: -W * .75, opacity: 0 }, { x: -W * .3, opacity: 1, duration: 1.0, ease: 'none' }, 0)
+       .add(step, 0)
+       // push: cat and cup travel together
+       .to(actor, { x: 0, duration: 1.2, ease: 'power1.inOut' }, 1.0)
+       .to(cup, { x: 0, duration: 1.2, ease: 'power1.inOut', keyframes: { rotate: [-4, 7, -3, 0], ease: 'none' } }, 1.0)
+       .to(cat, { y: 0, rotate: 0, duration: .2 }, 2.6)
+       // price strike
+       .fromTo(q('.ps-price s'), { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: .4 }, .6)
+       .fromTo(q('.ps-strike'), { scaleX: 0 }, { scaleX: 1, duration: .45, ease: 'power2.inOut' }, 2.3)
+       .to(q('.ps-price s span'), { opacity: .55, duration: .3 }, 2.5)
+       .fromTo(q('.ps-price b'), { opacity: 0, scale: .6, y: 8 }, { opacity: 1, scale: 1, y: 0, duration: .55, ease: 'back.out(2.4)' }, 2.6)
+       .to(cup, { y: -10, duration: .25, yoyo: true, repeat: 1, ease: 'power2.out' }, 2.7);
+    } else if (s.classList.contains('a-peek')) {
+      const tail = q('.ps-tail');
+      t.fromTo(actor, { xPercent: 80, rotate: 8 }, { xPercent: 0, rotate: 0, duration: 1.1, ease: 'power3.out' }, .1)
+       .fromTo(q('.ps-cup'), { scale: 0, opacity: 0, rotate: -12 }, { scale: 1, opacity: 1, rotate: 0, duration: .7, ease: 'back.out(2.4)' }, .8)
+       .to(cat, { rotate: -3, duration: .5, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 1.2)
+       .to(tail, { rotate: 14, duration: .28, yoyo: true, repeat: 5, ease: 'sine.inOut' }, 1.2);
+    } else if (s.classList.contains('a-lie')) {
+      t.fromTo(actor, { y: 34, opacity: 0, scale: .96 }, { y: 0, opacity: 1, scale: 1, duration: .9, ease: 'power2.out' }, .1)
+       .fromTo(q('.ps-minimap'), { opacity: 0, y: 16, scale: .97 }, { opacity: 1, y: 0, scale: 1, duration: .7, ease: 'power3.out' }, 0)
+       .fromTo(q('.ps-pin'), { y: -120, opacity: 0 }, { y: 0, opacity: 1, duration: 1.0, ease: 'bounce.out' }, .6)
+       .fromTo(q('.ps-pin'), { scaleY: .75 }, { scaleY: 1, duration: .3, ease: 'back.out(3)' }, 1.45)
+       .fromTo(q('.mm-route'), { strokeDashoffset: 120 }, { strokeDashoffset: 0, duration: 1.4, ease: 'power1.out' }, .4);
+    } else {
+      t.fromTo(q('.ps-bg'), { scale: 1.08, y: 30, opacity: 0 }, { scale: 1, y: 0, opacity: 1, duration: 1.4, ease: 'power3.out' }, 0)
+       .fromTo(s.querySelectorAll('.ps-cap > *'), { y: 18, opacity: 0 }, { y: 0, opacity: 1, stagger: .1, duration: .6 }, .2)
+       .fromTo(q('.ps-corner'), { xPercent: 100 }, { xPercent: 0, duration: .8, ease: 'power3.out' }, .6);
+    }
+    t.add(() => startIdle(s));
+    return t;
+  };
+  const startIdle = (s: HTMLElement) => {
+    idle?.kill(); idle = gsap.timeline({ repeat: -1 });
+    const cat = s.querySelector('.ps-cat'), tail = s.querySelector('.ps-tail'), pin = s.querySelector('.ps-pin'), cup = s.querySelector('.ps-cup');
+    if (cat) idle.to(cat, { scaleY: 1.02, scaleX: .995, duration: 1.4, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0);
+    if (tail) idle.to(tail, { rotate: 8, duration: .7, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0);
+    if (pin) idle.to(pin, { y: -4, duration: 1.4, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0);
+    if (cup) idle.to(cup, { y: -4, duration: 1.4, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0);
+    if (!idle.getChildren().length) idle.to(s.querySelector('.ps-bg'), { y: -6, duration: 1.4, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0);
+  };
+
+  const go = (i: number, force = false) => {
+    i = (i + slides.length) % slides.length;
+    if (i === cur && !force) return;
+    const prev = slides[cur];
+    tl?.kill(); idle?.kill();
+    if (prev && prev !== slides[i]) { gsap.to(prev, { opacity: 0, duration: .5, onComplete: () => { prev.classList.remove('on'); gsap.set(prev, { clearProps: 'opacity' }); reset(prev); } }); prev.setAttribute('aria-hidden', 'true'); }
+    const s = slides[i]; s.classList.add('on'); s.setAttribute('aria-hidden', 'false');
+    if (prev !== s) gsap.fromTo(s, { opacity: 0 }, { opacity: 1, duration: .5 });
+    cur = i;
+    dots.forEach((d, k) => { d.classList.toggle('on', k === i); d.setAttribute('aria-current', k === i ? 'true' : 'false'); });
+    tl = reduce ? null : intro(s);
+    prog?.kill();
+    prog = gsap.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: DUR + 2, ease: 'none', paused: reduce || !visible, onComplete: () => go(cur + 1) });
+    (root as any).__promo = { cur, playing: !!tl };
+  };
+  // only animate/autoplay while the slider is on screen; replay the current slide when it comes back into view
+  new IntersectionObserver(([e]) => {
+    const was = visible; visible = e.intersectionRatio >= .35;
+    if (visible && !was) go(cur < 0 ? 0 : cur, true);
+    if (!visible) { prog?.pause(); idle?.pause(); }
+  }, { threshold: [0, .35, .6] }).observe(root);
+
+  root.querySelector('[data-prev]')!.addEventListener('click', () => go(cur - 1));
+  root.querySelector('[data-next]')!.addEventListener('click', () => go(cur + 1));
+  dots.forEach((d, k) => d.addEventListener('click', () => go(k)));
+  root.addEventListener('pointerenter', () => prog?.pause());
+  root.addEventListener('pointerleave', () => { if (!reduce && visible) prog?.resume(); });
+  root.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') go(cur - 1); if (e.key === 'ArrowRight') go(cur + 1); });
+  let sx = 0;
+  root.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+  root.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1)); });
+  document.addEventListener('visibilitychange', () => document.hidden ? prog?.pause() : !reduce && visible && prog?.resume());
+
+  const sync = () => { const n = document.documentElement.dataset.theme === 'night'; root.querySelectorAll<HTMLImageElement>('img[data-day]').forEach(im => { im.src = (n ? im.dataset.night : im.dataset.day)!; }); };
+  new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  sync(); go(0); if (!visible) { tl?.pause(0); }
+}
+</script>

@@ -1,0 +1,213 @@
+---
+import '@fontsource/fraunces/400.css';
+import '@fontsource/fraunces/600.css';
+import '@fontsource/fraunces/400-italic.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/caveat/500.css';
+import 'leaflet/dist/leaflet.css';
+import '../styles/main.css';
+import data from '../data/landing.json';
+import PromoSlider from '../components/PromoSlider.astro';
+const rp = (n) => 'Rp ' + n.toLocaleString('id-ID').replace(/,/g, '.');
+const t = Object.fromEntries(data.titik.map((x) => [x.id, x]));
+const st = t[data.status.titikId];
+const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night: `img/cat-${pose}-n.webp`, cls, alt });
+---
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Lizzy Coffee — Kopi enak, di dekatmu</title>
+<meta name="theme-color" content="#f7f1e6" />
+<link rel="icon" href="img/logo.webp" />
+<script is:inline>
+ (function(){var h=new Date().getHours(),s=localStorage.getItem('lz-theme');var n=s?s==='night':(h>=17||h<5);document.documentElement.dataset.theme=n?'night':'day';
+ if(sessionStorage.getItem('lz-intro'))document.documentElement.classList.add('no-intro');})();
+</script>
+</head>
+<body>
+<!-- 1. Intro -->
+<div id="intro" aria-hidden="true">
+  <div class="bean-half l"><svg viewBox="0 0 100 200"><path d="M100 6C46 6 10 50 10 100s36 94 90 94" fill="#4a2a1d"/><path d="M100 6c-18 30-24 60-12 94s14 64 12 94" fill="none" stroke="#2a150e" stroke-width="7" stroke-linecap="round"/></svg></div>
+  <div class="bean-half r"><svg viewBox="0 0 100 200"><path d="M0 6c54 0 90 44 90 94S54 194 0 194" fill="#5a3322"/><path d="M0 6c18 30 24 60 12 94S-2 164 0 194" fill="none" stroke="#2a150e" stroke-width="7" stroke-linecap="round"/></svg></div>
+  <div class="intro-panel l"></div><div class="intro-panel r"></div>
+  <p class="intro-tag">lizzy coffee</p>
+  <button id="skip" type="button">Lewati</button>
+</div>
+
+<div id="theme-reveal"></div>
+<div class="beans" aria-hidden="true">{Array.from({ length: 9 }).map((_, i) => <i class={`fb b${i}`}></i>)}</div>
+
+<header class="top">
+  <a href="#hero" class="logo"><img src="img/logo.webp" alt="Logo Lizzy Coffee" width="44" height="44" /></a>
+  <div class="brand"><span>LIZZY COFFEE</span><small>kopi keliling · Jakarta Selatan</small></div>
+  <button id="themeBtn" class="mode" type="button" aria-label="Ganti mode"><span class="ic"></span><span class="lbl">Mode malam</span></button>
+</header>
+
+<main>
+<!-- 2. Hero -->
+<section id="hero" class="hero">
+  <div class="hero-visual">
+  <div class="map" id="map" role="region" aria-label="Peta lokasi Lizzy (contoh)">
+    <div class="map-fallback"></div>
+  </div>
+  <div class="status card glass rv">
+    <span class="dot"></span>
+    <div><small>Lizzy sekarang di</small><b>{st.name}</b><em><span>±{data.status.etaMin} menit dari kamu</span><span>buka s/d {data.status.openUntil}</span></em></div>
+    <span class="chip">contoh</span>
+  </div>
+  <picture class="peek swap" data-day={cat('peek').day} data-night={cat('peek').night}><img src={cat('peek').day} alt="Lizzy mengintip" loading="eager" /></picture>
+  </div>
+  <div class="hero-copy">
+    <p class="eyebrow rv">Kopi keliling · pre-order lewat WA</p>
+    <h1 class="blur-in">Kopi enak,<br/><i>di dekatmu.</i></h1>
+    <p class="lead rv">Pesan dulu, ambil tanpa antre. Kopi lebih segar, kamu lebih hemat waktu.</p>
+    <div class="cta-row rv"><a href="#preorder" class="btn primary">Pre-order <span>→</span></a><a href="#jadwal" class="btn ghost">Lihat jadwal</a></div>
+    <ul class="perks rv"><li><b>±5'</b><span>siap ambil</span></li><li><b>3</b><span>titik mangkal</span></li><li><b>Tunai</b><span>&amp; QRIS</span></li></ul>
+  </div>
+</section>
+<PromoSlider />
+
+<!-- 3. Carousel -->
+<section id="menu" class="menu">
+  <div class="sec-head"><p class="eyebrow rv">Signature &amp; Best Seller</p><h2 class="blur-in">Pilih yang bikin <i>harimu enak.</i></h2></div>
+  <div class="menu-grid"><div class="stage-wrap">
+  <div class="stage" id="stage">
+    <div class="halo"></div>
+    <div class="cups">{data.menu.map((m, i) => <figure class="cup" data-i={i}><img src={`img/${m.img}.webp`} alt={m.name} draggable="false" /><span class="shadow"></span></figure>)}</div>
+    <picture class="pusher swap" data-day={cat('push').day} data-night={cat('push').night}><img src={cat('push').day} alt="" /></picture>
+    <picture class="sitter swap" data-day={cat('sit').day} data-night={cat('sit').night}><img src={cat('sit').day} alt="Lizzy duduk di samping kopi" /></picture>
+    <button class="nav prev" type="button" aria-label="Sebelumnya">‹</button><button class="nav next" type="button" aria-label="Berikutnya">›</button>
+  </div>
+  <div class="dots">{data.menu.map((m, i) => <button type="button" data-i={i} aria-label={m.name}></button>)}</div>
+  </div><div class="menu-side">
+  <article class="drink card" id="drinkCard">
+    <span class="tag" id="dTag">{data.menu[0].tag}</span>
+    <h3 id="dName">{data.menu[0].name}</h3>
+    <p id="dDesc">{data.menu[0].desc}</p>
+    <div class="row"><b id="dPrice">{rp(data.menu[0].price)}</b><small>harga contoh</small></div>
+    <a href="#preorder" class="btn primary" id="pickBtn">Pilih &amp; Pre-order <span>→</span></a>
+  </article>
+  <ul class="mini">{data.menu.map((m, i) => <li><button type="button" data-i={i}><img src={`img/${m.img}.webp`} alt="" loading="lazy" /><span>{m.name}<b>{rp(m.price)}</b></span></button></li>)}</ul>
+  </div></div>
+</section>
+
+<!-- 4. Pour moment -->
+
+<section id="menu-lengkap" class="fullmenu">
+  <div class="sec-head row-head"><div><p class="eyebrow rv">Menu lengkap <span class="chip">contoh</span></p><h2 class="blur-in">Menu <i>lainnya.</i></h2></div>
+  <div class="cats" id="cats"><button type="button" class="on" data-c="all">Semua</button>{[...new Set(data.menuLengkap.map((m) => m.cat))].map((c) => <button type="button" data-c={c}>{c}</button>)}</div></div>
+  <ul class="mgrid">{data.menuLengkap.map((m) => <li class={`mitem card ${m.soldOut ? 'out' : ''}`} data-c={m.cat}>
+    <span class="swatch" style={`--t:${m.tone}`}></span>
+    <div class="mi-top"><small>{m.cat}</small>{m.signature && <span class="badge sig">Signature</span>}{m.soldOut && <span class="badge so">Habis</span>}</div>
+    <b class="mi-name">{m.name}</b><p>{m.desc}</p>
+    <div class="mi-foot"><span class="mi-price">{rp(m.price)}</span>{m.soldOut ? <span class="mi-na">Besok lagi ya</span> : <a href="#preorder" class="mi-add" data-id={m.id}>Pesan +</a>}</div>
+  </li>)}</ul>
+</section>
+
+<!-- 4. Brew -->
+<section class="brew" id="pour">
+  <div class="brew-card">
+  <div class="brew-stage" aria-hidden="true">
+    <div class="brew-glow"></div>
+    <div class="steam"><i></i><i></i><i></i></div>
+    <div class="stream"></div>
+    <div class="bcup">
+      <img class="ghost" src="img/cup-aren.webp" alt="" />
+      <div class="fillwrap"><img class="full" src="img/cup-aren.webp" alt="" /><span class="wave"></span><span class="swirl"></span></div>
+      <div class="drops">{Array.from({ length: 3 }).map(() => <span class="ice"></span>)}</div>
+    </div>
+    <span class="plate"></span>
+  </div>
+  <div class="brew-copy">
+    <p class="eyebrow">Dibikin pas kamu pesan</p>
+    <h2 class="blur-in">Diseduh segar,<br/><i>bukan stok pagi.</i></h2>
+    <p class="brew-now">Lagi diseduh: <b id="brewName">Kopi Susu Gula Aren</b></p>
+    <ol class="steps" id="brewSteps"><li data-s="0"><b>01</b><span>Espresso diekstrak</span></li><li data-s="1"><b>02</b><span>Susu &amp; gula aren dituang</span></li><li data-s="2"><b>03</b><span>Es masuk, siap diambil</span></li></ol>
+  </div>
+  </div>
+</section>
+
+<!-- 5. Pre-order -->
+<section id="preorder" class="preorder">
+  <div class="sec-head po-head"><p class="eyebrow rv">Pre-order</p><h2 class="blur-in">Ambil, <i>nikmati.</i></h2><p class="lead rv">Isi sebentar, nanti langsung kebuka WhatsApp dengan pesan yang udah jadi.</p></div>
+  <form id="poForm" class="card form" novalidate>
+    <fieldset><legend>Pilih minuman</legend>
+      <div class="opts">{data.menu.map((m, i) => <label class="opt"><input type="radio" name="drink" value={m.id} checked={i === 0} /><img src={`img/${m.img}.webp`} alt="" loading="lazy" /><span><b>{m.name}</b><small>{rp(m.price)} · contoh</small></span><i class="ck"></i></label>)}</div>
+      <label class="fld other"><span>Atau menu lain</span><select name="other"><option value="">— pakai pilihan di atas —</option>{data.menuLengkap.filter((m) => !m.soldOut && !m.signature).map((m) => <option value={m.id}>{m.name} · {rp(m.price)}</option>)}</select></label>
+    </fieldset>
+    <div class="grid2">
+      <label class="fld"><span>Jumlah</span><div class="qty"><button type="button" data-q="-1">−</button><input name="qty" type="number" min="1" max="20" value="1" inputmode="numeric" /><button type="button" data-q="1">+</button></div></label>
+      <label class="fld"><span>Waktu ambil</span><select name="waktu"><option>Sekarang (secepatnya)</option><option>+15 menit</option><option>+30 menit</option><option>+1 jam</option></select></label>
+    </div>
+    <label class="fld"><span>Titik ambil</span><select name="titik">{data.titik.map((x) => <option value={x.id}>{x.name}</option>)}</select></label>
+    <label class="fld"><span>Nama kamu</span><input name="nama" type="text" placeholder="mis. Rani" autocomplete="given-name" required /></label>
+    <div class="total"><span>Total <small>(contoh)</small></span><b id="total">{rp(data.menu[0].price)}</b></div>
+    <button class="btn wa" type="submit"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2s-1 .3-3.4-.7a11.7 11.7 0 0 1-4.6-4.1c-.4-.6-1-1.7-1-3.2 0-1.5.8-2.2 1-2.5.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.5c-.2.2-.3.4-.1.7.2.4.9 1.5 2 2.4 1.3 1.1 2.4 1.5 2.8 1.6.3.2.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.6.3.1.2.1.8-.1 1.3Z"/></svg> Pesan via WhatsApp <span>→</span></button>
+    <p class="fine">Nomor WA masih contoh. Bayar di tempat: Tunai atau QRIS.</p>
+  </form>
+</section>
+
+<!-- 6. Jadwal -->
+<section id="jadwal" class="jadwal">
+  <div class="sec-head"><p class="eyebrow rv">Jadwal mangkal <span class="chip">contoh</span></p><h2 class="blur-in">Cari Lizzy <i>di sini.</i></h2></div>
+  <ol class="spots">{data.jadwal.map((j, i) => <li class="card spot rv"><span class="num">{i + 1}</span><div><b>{t[j.titikId].name}</b><small>{t[j.titikId].address}</small></div><div class="when"><b>{j.days}</b><small>{j.time}</small></div></li>)}</ol>
+</section>
+
+<section class="quote" id="quote">
+  <div class="q-card">
+    <div class="q-cups" aria-hidden="true">{data.menu.map((m) => <img src={`img/${m.img}.webp`} alt="" loading="lazy" />)}</div>
+    <div class="q-body">
+      <img class="qmark" src="img/logo.webp" alt="" width="44" height="44" />
+      <p class="typed" id="typed" data-text={data.quote} aria-label={data.quote}></p>
+      <span class="qline" aria-hidden="true"></span>
+    </div>
+    <picture class="jumper-q swap" data-day={cat('jump').day} data-night={cat('jump').night}><img src={cat('jump').day} alt="" loading="lazy" /></picture>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="c-card">
+    <div class="c-art">
+      <span class="c-glow"></span>
+      <picture class="lier swap" data-day={cat('lie').day} data-night={cat('lie').night}><img src={cat('lie').day} alt="Lizzy rebahan" loading="lazy" /></picture>
+    </div>
+    <div class="c-body">
+      <p class="eyebrow">Sampai jumpa lagi</p>
+      <h2 class="blur-in">Sampai ketemu <i>di titik berikutnya.</i></h2>
+      <p class="lead">Pesan dari sekarang, kopimu udah siap pas kamu sampai. Lewat jalur khusus, tanpa antre.</p>
+      <ul class="c-next">{data.jadwal.map((j, i) => <li class={i === 0 ? 'now' : ''}><span class="cdot"></span><b>{t[j.titikId].name}</b><small>{j.days} · {j.time}</small>{i === 0 && <em>hari ini</em>}</li>)}</ul>
+      <div class="c-cta"><a href="#preorder" class="btn primary">Pre-order sekarang <span>→</span></a><a href={`https://wa.me/${data.brand.waNumber}`} target="_blank" rel="noopener" class="btn ghost">Chat WhatsApp</a></div>
+      <div class="c-soc"><a href={data.brand.instagram} target="_blank" rel="noopener">Instagram</a><a href={data.brand.tiktok} target="_blank" rel="noopener">TikTok</a><span>contoh · jadwal bisa berubah</span></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="f-grid">
+    <div class="f-brand"><img src="img/logo.webp" alt="Lizzy Coffee" width="56" height="56" class="flogo" /><div><b>LIZZY COFFEE</b><p>Kopi keliling yang dibikin pas kamu pesan. Jakarta Selatan.</p></div></div>
+    <nav class="f-col"><b>Jelajah</b><a href="#menu">Signature</a><a href="#menu-lengkap">Menu lengkap</a><a href="#jadwal">Jadwal mangkal</a><a href="#preorder">Pre-order</a></nav>
+    <div class="f-col"><b>Kontak</b><a href={`https://wa.me/${data.brand.waNumber}`} target="_blank" rel="noopener">WhatsApp (contoh)</a><a href={data.brand.instagram} target="_blank" rel="noopener">Instagram</a><a href={data.brand.tiktok} target="_blank" rel="noopener">TikTok</a></div>
+    <div class="f-col"><b>Pembayaran</b><div class="pays">{data.brand.payments.map((p) => <span>{p}</span>)}</div><small>Bayar di tempat pas ambil.</small></div>
+  </div>
+  <div class="f-bot"><span>© 2026 Lizzy Coffee</span><span>Data di halaman ini contoh · peta © OpenStreetMap</span></div>
+</footer>
+
+<!-- Overlay -->
+<div id="overlay" role="dialog" aria-modal="true" aria-labelledby="ovT" hidden>
+  <div class="ov-card">
+    <picture class="jumper swap" data-day={cat('jump').day} data-night={cat('jump').night}><img src={cat('jump').day} alt="Lizzy loncat senang" /></picture>
+    <h3 id="ovT">Pesananmu lagi disiapin</h3>
+    <p class="ov-sum" id="ovSum"></p>
+    <p class="ov-q">“{data.quote}”</p>
+    <div class="ov-row"><a class="btn wa" id="ovWa" target="_blank" rel="noopener">Buka WhatsApp</a><button class="btn ghost" id="ovClose" type="button">Tutup</button></div>
+  </div>
+</div>
+<script>import '../scripts/main.js';</script>
+<script type="application/json" id="landing-data" set:html={JSON.stringify(data)}></script>
+</body>
+</html>

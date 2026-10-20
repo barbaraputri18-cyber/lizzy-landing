@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch(); const p = await (await b.newContext({ viewport: { width: 1440, height: 900 } })).newPage(); const errs = [];
+p.on('pageerror', (e) => errs.push(e.message));
+await p.addInitScript(() => sessionStorage.setItem('lz-intro', '1'));
+await p.goto('http://localhost:4399/'); await p.waitForTimeout(1200);
+await p.evaluate(() => scrollTo(0, document.querySelector('#menu').getBoundingClientRect().top + scrollY - 70)); await p.waitForTimeout(1200);
+await p.click('.nav.next'); await p.waitForTimeout(500); await p.click('.mini li:nth-child(3) button'); await p.waitForTimeout(100);
+const r1 = await p.evaluate(() => [document.querySelector('#dName').textContent, document.querySelector('.mini button.on')?.textContent]);
+await p.waitForTimeout(600); await p.click('.nav.prev'); await p.click('.nav.prev');
+await p.waitForTimeout(150); const r2 = await p.evaluate(() => document.querySelector('#dName').textContent);
+await p.waitForTimeout(3000); await p.screenshot({ path: 'shots/d-click-settled.png' });
+console.log(JSON.stringify({ r1, r2, errs })); await b.close();
