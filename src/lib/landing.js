@@ -57,6 +57,9 @@ export async function getLanding() {
       if (REQUIRED.every((k) => d && k in d)) { data = { ...fallback, ...d }; source = 'api';
         // API masih kosong (menu/promo belum diisi di dashboard): pakai landing.json
         for (const k of ['menu', 'menuLengkap', 'promos']) if (!Array.isArray(d[k]) || d[k].length === 0) data[k] = fallback[k];
+        // teks kosong dari API (mis. quote: "") jangan nimpa teks landing.json -> section quote/penutup nggak kosong
+        for (const k of ['quote']) if (typeof d[k] !== 'string' || !d[k].trim()) data[k] = fallback[k];
+        if (d.copy && typeof d.copy === 'object') data.copy = { ...fallback.copy, ...Object.fromEntries(Object.entries(d.copy).filter(([, v]) => v != null && String(v).trim() !== '')) };
         for (const k of ['menu', 'menuLengkap']) if (data[k] !== fallback[k]) data[k] = fixSoldOut(normList(data[k]));
         if (Array.isArray(d.signatures)) {
           // signatures bisa berupa objek item atau id mentah ("6") -> cari item aslinya di menuLengkap API
