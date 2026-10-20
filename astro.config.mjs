@@ -1,2 +1,2 @@
 import { defineConfig } from 'astro/config';
-export default defineConfig({ build: { inlineStylesheets: 'never' } });
+export default defineConfig({ site: 'https://lizzy.my.id', build: { inlineStylesheets: 'never' } });

@@ -1,20 +1,20 @@
 {
-  "_source": "contoh — nanti diganti GET https://coffe.lizzy.my.id/api/public/landing",
+  "_source": "fallback — dipakai kalau GET https://coffe.lizzy.my.id/api/public/landing gagal",
   "brand": {
     "name": "Lizzy Coffee",
-    "waNumber": "6281200000000",
-    "instagram": "https://instagram.com/lizzycoffee",
-    "tiktok": "https://tiktok.com/@lizzycoffee",
+    "waNumber": "",
+    "instagram": "",
+    "tiktok": "",
     "payments": [
       "Tunai",
       "QRIS"
-    ]
+    ],
+    "socials": []
   },
   "status": {
-    "titikId": "t1",
+    "titikId": null,
     "etaMin": 5,
     "openUntil": "14.00",
-    "contoh": true,
     "userLatLng": [
       -6.2672,
       106.8079
@@ -27,8 +27,7 @@
       "desc": "Espresso, susu segar, gula aren asli. Manisnya pas, legitnya nempel.",
       "price": 22000,
       "tag": "Signature",
-      "img": "cup-aren",
-      "contoh": true
+      "img": "cup-aren"
     },
     {
       "id": "matcha",
@@ -36,8 +35,7 @@
       "desc": "Matcha creamy, lembut, nggak pahit. Buat yang lagi butuh adem.",
       "price": 25000,
       "tag": "Best Seller",
-      "img": "cup-matcha",
-      "contoh": true
+      "img": "cup-matcha"
     },
     {
       "id": "butterscotch",
@@ -45,56 +43,11 @@
       "desc": "Karamel butterscotch gurih ketemu espresso. Wangi banget.",
       "price": 25000,
       "tag": "Favorit",
-      "img": "cup-butterscotch",
-      "contoh": true
+      "img": "cup-butterscotch"
     }
   ],
-  "titik": [
-    {
-      "id": "t1",
-      "name": "Titik 1 Kemang",
-      "address": "Depan minimarket Jl. Kemang Raya (contoh)",
-      "contoh": true,
-      "lat": -6.2607,
-      "lng": 106.8137
-    },
-    {
-      "id": "t2",
-      "name": "Titik 2 Bangka",
-      "address": "Taman kecil Jl. Bangka Raya (contoh)",
-      "contoh": true,
-      "lat": -6.256,
-      "lng": 106.8215
-    },
-    {
-      "id": "t3",
-      "name": "Titik 3 Ampera",
-      "address": "Samping halte Jl. Ampera (contoh)",
-      "contoh": true,
-      "lat": -6.2868,
-      "lng": 106.817
-    }
-  ],
-  "jadwal": [
-    {
-      "titikId": "t1",
-      "days": "Senin – Jumat",
-      "time": "06.30 – 14.00",
-      "contoh": true
-    },
-    {
-      "titikId": "t2",
-      "days": "Sabtu",
-      "time": "07.00 – 13.00",
-      "contoh": true
-    },
-    {
-      "titikId": "t3",
-      "days": "Minggu",
-      "time": "07.00 – 12.00",
-      "contoh": true
-    }
-  ],
+  "titik": [],
+  "jadwal": [],
   "quote": "After all, you're alive, so you'll always have the chance to be happy.",
   "menuLengkap": [
     {
@@ -104,8 +57,7 @@
       "desc": "Espresso + air, bold dan bersih.",
       "price": 18000,
       "tone": "#3b2116",
-      "soldOut": false,
-      "contoh": true
+      "soldOut": false
     },
     {
       "id": "kopisusu",
@@ -114,8 +66,7 @@
       "desc": "Espresso, susu segar, sedikit manis.",
       "price": 20000,
       "tone": "#a9774f",
-      "soldOut": false,
-      "contoh": true
+      "soldOut": false
     },
     {
       "id": "aren",
@@ -125,8 +76,7 @@
       "price": 22000,
       "tone": "#7a4a2c",
       "soldOut": false,
-      "signature": true,
-      "contoh": true
+      "signature": true
     },
     {
       "id": "butterscotch",
@@ -136,8 +86,7 @@
       "price": 25000,
       "tone": "#c08a56",
       "soldOut": false,
-      "signature": true,
-      "contoh": true
+      "signature": true
     },
     {
       "id": "latte",
@@ -146,8 +95,7 @@
       "desc": "Lembut, creamy, tanpa gula.",
       "price": 22000,
       "tone": "#c9a37c",
-      "soldOut": true,
-      "contoh": true
+      "soldOut": true
     },
     {
       "id": "coldbrew",
@@ -156,8 +104,7 @@
       "desc": "Rendam 12 jam, segar dan ringan.",
       "price": 24000,
       "tone": "#2c1a12",
-      "soldOut": false,
-      "contoh": true
+      "soldOut": false
     },
     {
       "id": "matcha",
@@ -167,8 +114,7 @@
       "price": 25000,
       "tone": "#7f9a4e",
       "soldOut": false,
-      "signature": true,
-      "contoh": true
+      "signature": true
     },
     {
       "id": "cokelat",
@@ -177,8 +123,7 @@
       "desc": "Cokelat pekat, susu, manis pas.",
       "price": 22000,
       "tone": "#5a3424",
-      "soldOut": false,
-      "contoh": true
+      "soldOut": false
     },
     {
       "id": "tehtarik",
@@ -187,8 +132,7 @@
       "desc": "Teh hitam + susu, wangi rempah.",
       "price": 18000,
       "tone": "#b07a4a",
-      "soldOut": true,
-      "contoh": true
+      "soldOut": true
     },
     {
       "id": "lemontea",
@@ -197,8 +141,7 @@
       "desc": "Teh dingin + perasan lemon segar.",
       "price": 16000,
       "tone": "#d4a24a",
-      "soldOut": false,
-      "contoh": true
+      "soldOut": false
     },
     {
       "id": "redvelvet",
@@ -207,8 +150,7 @@
       "desc": "Manis lembut, warna cantik.",
       "price": 23000,
       "tone": "#9c3b40",
-      "soldOut": false,
-      "contoh": true
+      "soldOut": false
     },
     {
       "id": "croissant",
@@ -217,8 +159,7 @@
       "desc": "Renyah, buttery, cocok sama latte.",
       "price": 18000,
       "tone": "#d7a65e",
-      "soldOut": false,
-      "contoh": true
+      "soldOut": false
     }
   ],
   "promos": [
@@ -234,8 +175,7 @@
       "priceOld": 66000,
       "priceNew": 44000,
       "cta": "Pesan sekarang",
-      "href": "#preorder",
-      "contoh": true
+      "href": "#preorder"
     },
     {
       "id": "matcha",
@@ -247,8 +187,7 @@
       "title": "Menu baru: *Matcha Latte*",
       "desc": "Creamy, lembut, nggak pahit.",
       "cta": "Lihat menu",
-      "href": "#menu",
-      "contoh": true
+      "href": "#menu"
     },
     {
       "id": "lokasi",
@@ -258,18 +197,16 @@
       "eyebrow": "Lokasi minggu ini",
       "cta": "Cek jadwal",
       "href": "#jadwal",
-      "contoh": true,
       "titikId": "t2"
     },
     {
       "id": "custom",
       "type": "image",
       "src": "img/cup-butterscotch.webp",
-      "alt": "Banner promo contoh",
+      "alt": "Banner promo Butterscotch Latte",
       "title": "Butterscotch Latte",
       "peek": true,
-      "href": "#menu",
-      "contoh": true
+      "href": "#menu"
     }
   ]
 }

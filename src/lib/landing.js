@@ -22,6 +22,9 @@ export async function getLanding() {
   } catch (e) {
     console.warn('[landing] API tidak bisa diakses, pakai landing.json:', e.message);
   }
+  // Uji state kosong: LZ_EMPTY_TITIK=1 npm run build
+  if (typeof process !== 'undefined' && process.env?.LZ_EMPTY_TITIK) data = { ...data, titik: [], jadwal: [] };
+  data = { ...data, titik: Array.isArray(data.titik) ? data.titik : [], jadwal: Array.isArray(data.jadwal) ? data.jadwal : [] };
   cached = { ...data, _source: source };
   return cached;
 }

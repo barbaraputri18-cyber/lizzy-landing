@@ -6,11 +6,15 @@ const set = (k, v) => document.querySelectorAll(`[data-live="${k}"]`).forEach((e
 
 function apply(s) {
   if (!s) return;
-  const t = titik.find((x) => x.id === s.titikId);
+  const t = s.titikId != null ? titik.find((x) => x.id === s.titikId) : null;
   if (s.open === false) set('name', 'Lagi nggak mangkal');
   else if (t) set('name', t.name);
-  set('eta', s.etaMin);
-  set('until', s.openUntil);
+  const hasEta = s.etaMin != null && s.etaMin !== '';
+  if (hasEta) set('eta', s.etaMin);
+  document.querySelectorAll('[data-eta-wrap]').forEach((el) => { el.hidden = !hasEta; });
+  document.querySelectorAll('[data-live-lbl]').forEach((el) => { el.textContent = hasEta ? 'Lizzy sekarang di' : 'Lagi di'; });
+  document.querySelectorAll('[data-until-lbl]').forEach((el) => { el.textContent = hasEta ? 'buka s/d' : 'buka sampai jam'; });
+  if (s.openUntil != null) set('until', s.openUntil);
   if (Array.isArray(s.soldOut)) {
     const out = new Set(s.soldOut);
     document.querySelectorAll('.mitem[data-id]').forEach((li) => {

@@ -35,6 +35,8 @@ def shade(p):
   mn=np.clip(m[...,None]*1.1,0,.92)
   n=n*(1-mn)+NT*mn
   n[eye]=out[eye]*.7+np.array([170,205,235.])*.3
-  Image.fromarray(np.dstack([np.clip(n,0,255),im[...,3]]).astype('uint8'),'RGBA').save(f'public/img/cat-{p}-n.webp','WEBP',quality=90,method=6,exact=True)
+  # night: densify faded fur so the body doesn't read as see-through/'broken' on dark bg (lines + points kept)
+  a=im[...,3];light=np.clip((L0[...,0]-120)/80,0,1);an=np.where(a<16,a,np.clip(a*(1+.9*light),0,255))
+  Image.fromarray(np.dstack([np.clip(n,0,255),an]).astype('uint8'),'RGBA').save(f'public/img/cat-{p}-n.webp','WEBP',quality=90,method=6,exact=True)
 for p in R: shade(p)
 print('ok')

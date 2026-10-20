@@ -24,6 +24,10 @@ Bentuk JSON **harus sama persis** dengan `src/data/landing.json` (file itu jadi 
 }
 ```
 
+- `brand` diisi dari menu **Setting Kontak** di dashboard (CRUD):
+  - `waNumber`: format `62812...` tanpa `+`/spasi/strip. Dipakai buat semua tombol WA & pre-order.
+  - `socials`: array `{ "label": "Instagram", "url": "https://..." }`, urut sesuai `urutan`, cuma yang aktif. Boleh nambah apa aja (Instagram, TikTok, X, Shopee, GoFood, dll).
+  - `instagram`/`tiktok` lama tetap dikirim biar kompatibel (boleh ambil dari `socials`).
 - `menu` = 3 cup carousel signature (urut). `img` = nama file di `public/img` tanpa `.webp`, **atau** URL lengkap `https://...` kalau upload dari dashboard.
 - `menuLengkap[].cat` salah satu: `Kopi`, `Non-kopi`, `Teman ngopi`. `soldOut` diambil dari stok hari ini.
 - `menuLengkap[].tone` = warna hex buat ilustrasi cup (boleh default per kategori).
