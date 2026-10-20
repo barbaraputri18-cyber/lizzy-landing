@@ -203,64 +203,48 @@ $('#pickBtn')?.addEventListener('click', () => { const r = $(`#poForm input[valu
 function pour() {
   const sec = $('#pour'), full = $('.bcup .full'), ghost = $('.bcup .ghost'), fw = $('.fillwrap');
   const seq = [
-    { img: 'cup-aren', name: "Aren's Meow", stream: '#3a1e12', milk: '#e9d6bd', base: '#6b3a1c', steps: ['Gula aren di dasar, espresso turun', 'Susu dituang, ngeblend pelan', 'Es masuk, siap diambil'] },
-    { img: 'cup-matcha', name: 'Matcha Whiskers', stream: '#6f8f3e', milk: '#eef0e2', base: null, steps: ['Matcha dikocok halus', 'Susu segar dituang', 'Es masuk, siap diambil'] },
-    { img: 'cup-butterscotch', name: 'Butterscotch Paws', stream: '#9a6236', milk: '#efdcc0', base: '#b9772f', steps: ['Saus butterscotch, espresso turun', 'Susu dituang, ngeblend pelan', 'Es masuk, siap diambil'] },
+    { img: 'cup-aren', name: 'Kopi Susu Gula Aren', stream: '#3a1e12', steps: ['Espresso diekstrak', 'Susu & gula aren dituang', 'Es masuk, siap diambil'] },
+    { img: 'cup-matcha', name: 'Matcha Latte', stream: '#6f8f3e', steps: ['Matcha dikocok halus', 'Susu segar dituang', 'Es masuk, siap diambil'] },
+    { img: 'cup-butterscotch', name: 'Butterscotch Latte', stream: '#9a6236', steps: ['Espresso diekstrak', 'Saus butterscotch & susu', 'Es masuk, siap diambil'] },
   ];
-  const stepEls = $$('#brewSteps li'), bar = $('#brewBar'), stream = $('.stream'), lz = $('.blizzy');
+  const stepEls = $$('#brewSteps li');
   const setStep = (k) => stepEls.forEach((li, i) => li.classList.toggle('on', i <= k));
+  // isi cup: wrapper digeser turun (yPercent) + isinya digeser balik -> efek 'terisi' cuma pakai transform
   const inner = [full, $('.bcup .swirl')].filter(Boolean);
   const fill = (p, o = {}) => [gsap.to(fw, { yPercent: p, ...o }), gsap.to(inner, { yPercent: -p, ...o })];
   const setFill = (p) => { gsap.set(fw, { yPercent: p }); gsap.set(inner, { yPercent: -p }); };
-  const show = (c) => { full.src = ghost.src = `img/${c.img}.webp`; $('#brewName').textContent = c.name; stepEls.forEach((li, i) => li.querySelector('span').textContent = c.steps[i]); };
-  let n = 0, tl = null, wait = null;
-  if (RM) { show(seq[0]); setFill(0); setStep(2); gsap.set(bar, { scaleX: 1 }); $('.bcup').addEventListener('click', () => { n++; show(seq[n % seq.length]); }); return; }
+  if (RM) { setFill(0); setStep(2); return; }
   setFill(100);
-  gsap.set(stream, { scaleY: 0, transformOrigin: '50% 0' });
+  gsap.set('.stream', { scaleY: 0, transformOrigin: '50% 0' });
   gsap.set('.drops .ice', { y: -260, opacity: 0 });
+  gsap.set('.steam i', { opacity: 0 });
+  let n = 0;
   const one = () => {
-    wait?.kill(); tl?.kill();
     const c = seq[n % seq.length]; n++;
-    show(c); stream.style.setProperty('--sc', c.stream);
-    $('.base').style.setProperty('--bc', c.base || 'transparent');
-    gsap.set('.dew i, .splash i, .bpaw', { opacity: 0 }); gsap.set('.drops .ice', { y: -260, opacity: 0 });
-    gsap.set(stream, { scaleY: 0, transformOrigin: '50% 0' }); gsap.set(bar, { scaleX: 0 });
-    tl = gsap.timeline({ onComplete: () => { wait = gsap.delayedCall(1.8, one); } });
-    tl.add(() => setFill(100)).set('.wave', { opacity: 1 }).set('.base', { opacity: 0, scaleY: 0 }).add(() => setStep(-1))
-      .fromTo('.bcup', { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: .5, ease: 'power3.out' })
-      .fromTo(lz, { x: -30, opacity: 0, rotate: -6 }, { x: 0, opacity: 1, rotate: 0, duration: .5, ease: 'power2.out' }, '<.1')
-      // 01: lapisan dasar + espresso/matcha
+    full.src = ghost.src = `img/${c.img}.webp`; $('#brewName').textContent = c.name;
+    stepEls.forEach((li, i) => li.querySelector('span').textContent = c.steps[i]);
+    $('.stream').style.setProperty('--sc', c.stream);
+    const tl = gsap.timeline({ onComplete: () => gsap.delayedCall(1.4, one) });
+    tl.add(() => setFill(100)).set('.wave', { opacity: 1 }).add(() => setStep(-1))
+      .fromTo('.bcup', { y: 16, rotate: -2, opacity: .0 }, { y: 0, rotate: 0, opacity: 1, duration: .5, ease: 'back.out(1.7)' })
       .add(() => setStep(0))
-      .to(lz, { rotate: 8, duration: .3, ease: 'sine.inOut' })
-      .to('.base', { opacity: c.base ? .9 : 0, scaleY: 1, duration: .5, ease: 'power2.out' }, '<')
-      .to(stream, { scaleY: 1, duration: .35, ease: 'power2.in' }, '<.15')
-      .add(fill(62, { duration: .9, ease: 'power1.inOut' }), '<.2')
-      .to(bar, { scaleX: .33, duration: 1.1, ease: 'none' }, '<')
-      // 02: susu nyusul, ngeblend pelan
-      .add(() => { setStep(1); stream.style.setProperty('--sc', c.milk); })
-      .fromTo('.swirl', { opacity: 0, rotate: 0, scale: .6 }, { opacity: .85, rotate: 200, scale: 1.1, duration: 1.4, ease: 'sine.inOut' })
-      .add(fill(14, { duration: 1.3, ease: 'power1.inOut' }), '<')
-      .to('.base', { opacity: c.base ? .55 : 0, duration: 1.3 }, '<')
-      .to(bar, { scaleX: .66, duration: 1.3, ease: 'none' }, '<')
-      .to(stream, { scaleY: 0, transformOrigin: '50% 100%', duration: .3, ease: 'power2.out' })
-      .set(stream, { transformOrigin: '50% 0' })
-      .to(lz, { rotate: 0, duration: .3, ease: 'sine.out' }, '<')
+      .to('.stream', { scaleY: 1, duration: .35, ease: 'power2.in' })
+      .add(fill(58, { duration: .8, ease: 'power1.inOut' }), '<.2')
+      .add(() => setStep(1))
+      .fromTo('.swirl', { opacity: 0, rotate: 0, scale: .6 }, { opacity: .85, rotate: 220, scale: 1.1, duration: 1.1, ease: 'sine.inOut' }, '<.3')
+      .add(fill(12, { duration: 1, ease: 'power1.inOut' }), '<')
+      .to('.stream', { scaleY: 0, transformOrigin: '50% 100%', duration: .3, ease: 'power2.out' })
+      .set('.stream', { transformOrigin: '50% 0' })
       .to('.swirl', { opacity: 0, duration: .5 }, '<')
-      // 03: es tenggelam lalu naik pelan, ada percikan
       .add(() => setStep(2))
-      .to('.drops .ice', { keyframes: [{ y: 70, opacity: 1, duration: .45, ease: 'power2.in' }, { y: 22, duration: .9, ease: 'sine.out' }], rotate: (i) => [-24, 14, 34][i], stagger: .14 }, '<')
-      .fromTo('.splash i', { x: 0, y: 0, opacity: .9, scale: 1 }, { x: (i) => [-26, -10, 12, 28][i], y: (i) => [-18, -28, -26, -16][i], opacity: 0, scale: .4, duration: .5, ease: 'power2.out', stagger: .02 }, '<.4')
-      .add(fill(0, { duration: .6, ease: 'power2.out' }), '<')
-      .to(bar, { scaleX: 1, duration: 1, ease: 'none' }, '<')
-      .to('.wave', { opacity: 0, duration: .3 }, '<.3')
-      // siap: embun netes + cakar Lizzy
-      .fromTo('.dew i', { opacity: 0, y: 0 }, { opacity: .9, duration: .4, stagger: .15 })
-      .to('.dew i', { y: 26, opacity: 0, duration: 1.2, ease: 'power1.in', stagger: .15 }, '<.6')
-      .fromTo('.bpaw', { opacity: 0, y: 8, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .35, ease: 'power2.out' }, '<-.4')
-      .to('.bpaw', { opacity: 0, duration: .4 }, '+=.9')
-      .to(['.drops .ice', lz], { opacity: 0, duration: .4 }, '<');
+      .to('.drops .ice', { y: 0, opacity: 1, rotate: (i) => [-18, 12, 30][i], duration: .55, ease: 'bounce.out', stagger: .12 }, '<')
+      .add(fill(0, { duration: .5, ease: 'power2.out' }), '<.2')
+      .to('.wave', { opacity: 0, duration: .3 }, '<.2')
+      .to('.drops .ice', { opacity: 0, duration: .4 }, '+=.1')
+      .fromTo('.steam i', { y: 10, opacity: 0, scaleY: .7 }, { y: -50, opacity: .7, scaleY: 1.2, duration: 1.4, stagger: .2, ease: 'sine.out' }, '<-.2')
+      .to('.steam i', { opacity: 0, duration: .6, stagger: .2 }, '-=.6')
+      .to('.bcup', { y: -6, duration: .6, yoyo: true, repeat: 1, ease: 'sine.inOut' }, '<');
   };
-  $('.bcup').addEventListener('click', () => { if (tl) one(); });
   ScrollTrigger.create({ trigger: sec, start: 'top 70%', once: true, onEnter: one });
 }
 
