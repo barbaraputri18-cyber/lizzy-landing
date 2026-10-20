@@ -37,7 +37,7 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
               <p class="eyebrow">{p.eyebrow}</p>
               <h2 set:html={md(p.title)} />
               <p class="lead">{p.desc}</p>
-              {p.priceOld && <p class="ps-price"><s><span>{rp(p.priceOld)}</span><i class="ps-strike"></i></s><b>{rp(p.priceNew)}</b></p>}
+              {p.priceOld && <p class="ps-price"><s><span>{rp(p.priceOld)}</span><i class="ps-strike" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none"><path class="cl1" d="M4 30 C30 22 62 14 96 6"/><path class="cl2" d="M2 38 C32 29 64 20 98 13"/><path class="cl3" d="M8 46 C36 37 66 28 94 21"/></svg></i></s><b>{rp(p.priceNew)}</b></p>}
               {p.cta && p.href && !(p.href === '#preorder' && !wa) && <a class="btn primary" href={p.href} {...(p.external ? { target: '_blank', rel: 'noopener' } : {})}>{p.cta}</a>}
             </div>
             <div class="ps-stage">
@@ -84,7 +84,13 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
 .ps-copy .btn{justify-self:start}
 .ps-price{display:flex;gap:14px;align-items:baseline;font-family:var(--serif)}
 .ps-price s{position:relative;color:var(--ink2);font-size:20px;text-decoration:none}
-.ps-strike{position:absolute;left:-4%;right:-4%;top:52%;height:2.5px;border-radius:2px;background:#c0392b;transform-origin:0 50%;transform:rotate(-6deg) scaleX(0)}
+.ps-price{--claw:#7a4a2b}
+:global([data-theme=night]) .ps-price{--claw:#c08a5a}
+/* harga coret = bekas cakaran Lizzy: 3 goresan cokelat kopi */
+.ps-strike{position:absolute;left:-6%;right:-6%;top:-6%;bottom:-18%;pointer-events:none}
+.ps-strike svg{display:block;width:100%;height:100%;overflow:visible}
+.ps-strike path{fill:none;stroke:var(--claw);stroke-width:3.2;stroke-linecap:round;vector-effect:non-scaling-stroke;transform-box:fill-box;transform-origin:0 50%}
+.ps-strike .cl2{stroke-width:3.6}
 .ps-price b{font-weight:600;font-size:clamp(26px,2.6vw,36px);color:var(--ink)}
 .ps-stage{position:relative;height:100%;min-height:0}
 .ps-stage::before{content:'';position:absolute;left:8%;right:8%;bottom:6%;height:14px;border-radius:50%;background:radial-gradient(rgba(58,34,25,.22),transparent 70%)}
@@ -127,11 +133,14 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
 .ps-chip{position:absolute;top:20px;left:20px}
 .ps-corner{position:absolute;right:0;bottom:0;width:clamp(90px,12vw,170px)}
 .ps-ui{position:absolute;left:0;right:0;bottom:16px;display:flex;justify-content:center;align-items:center;gap:16px;z-index:3}
-.ps-arrow{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 85%,transparent);backdrop-filter:blur(8px);cursor:pointer;display:grid;place-items:center}
+.ps-arrow{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 92%,transparent);cursor:pointer;display:grid;place-items:center}
 .ps-arrow svg{width:18px;height:18px;fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .ps-dots{display:flex;gap:8px}
-.ps-dots button{width:8px;height:8px;padding:0;border:0;border-radius:99px;background:var(--line);cursor:pointer;transition:width .35s var(--ease),background .35s}
-.ps-dots button.on{width:26px;background:var(--gold)}
+.ps-dots{gap:0!important}
+.ps-dots button{width:26px;height:8px;padding:0;border:0;background:none;cursor:pointer;display:grid}
+.ps-dots button::before{content:'';border-radius:99px;background:var(--line);transform:scaleX(.31);transition:transform .35s var(--ease),background-color .35s}
+.ps-dots button.on::before{transform:none;background:var(--gold)}
+.is-anim{will-change:transform,opacity}
 .ps-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:color-mix(in srgb,var(--line) 70%,transparent)}
 .ps-progress span{display:block;height:100%;width:100%;background:var(--gold);transform-origin:0 50%;transform:scaleX(0)}
 @media(max-width:760px){
@@ -182,11 +191,12 @@ if (root) {
   const dots = [...root.querySelectorAll<HTMLElement>('[data-dot]')];
   const bar = root.querySelector<HTMLElement>('.ps-progress span')!;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lite = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
   const DUR = 5;
   let cur = -1, tl: gsap.core.Timeline | null = null, prog: gsap.core.Tween | null = null;
 
   let idle: gsap.core.Timeline | null = null, visible = false;
-  const reset = (s: HTMLElement) => gsap.set(s.querySelectorAll('.ps-copy > *, .ps-actor, .ps-actor img, .ps-cup, .ps-pin, .ps-minimap, .ps-strike, .ps-price b, .ps-bg, .ps-corner'), { clearProps: 'transform,opacity,translate,rotate,scale' });
+  const reset = (s: HTMLElement) => gsap.set(s.querySelectorAll('.ps-copy > *, .ps-actor, .ps-actor img, .ps-cup, .ps-pin, .ps-minimap, .ps-strike path, .ps-price s, .ps-price s span, .ps-price b, .ps-bg, .ps-corner'), { clearProps: 'transform,opacity,translate,rotate,scale' });
   const intro = (s: HTMLElement) => {
     reset(s);
     const t = gsap.timeline();
@@ -196,18 +206,25 @@ if (root) {
     if (s.classList.contains('a-push')) {
       const stage = q('.ps-stage') as HTMLElement, cup = q('.ps-cup') as HTMLElement;
       const W = stage.clientWidth;
-      gsap.set(cup, { x: -W * .32, rotate: -4 });
-      // walk in with step cycle
-      const step = gsap.timeline({ repeat: 7 }).to(cat, { y: -12, rotate: -3, duration: .16, ease: 'sine.out' }).to(cat, { y: 0, rotate: 1.5, duration: .16, ease: 'sine.in' });
+      gsap.set(cup, { x: -W * .32, rotate: -4, force3D: true });
+      // layer GPU cuma selama dorong, dilepas lagi sesudahnya
+      const movers = [actor, cat, cup].filter(Boolean) as Element[];
+      movers.forEach((m) => m.classList.add('is-anim'));
+      t.eventCallback('onComplete', () => movers.forEach((m) => m.classList.remove('is-anim')));
+      // walk in with step cycle (HP: langkah lebih sedikit, tanpa rotate)
+      const step = lite
+        ? gsap.timeline({ repeat: 3 }).to(cat, { y: -10, duration: .32, ease: 'sine.out' }).to(cat, { y: 0, duration: .32, ease: 'sine.in' })
+        : gsap.timeline({ repeat: 7 }).to(cat, { y: -12, rotate: -3, duration: .16, ease: 'sine.out' }).to(cat, { y: 0, rotate: 1.5, duration: .16, ease: 'sine.in' });
       t.fromTo(actor, { x: -W * .75, opacity: 0 }, { x: -W * .3, opacity: 1, duration: 1.0, ease: 'none' }, 0)
        .add(step, 0)
        // push: cat and cup travel together
        .to(actor, { x: 0, duration: 1.2, ease: 'power1.inOut' }, 1.0)
-       .to(cup, { x: 0, duration: 1.2, ease: 'power1.inOut', keyframes: { rotate: [-4, 7, -3, 0], ease: 'none' } }, 1.0)
+       .to(cup, lite ? { x: 0, rotate: 0, duration: 1.2, ease: 'power1.inOut' } : { x: 0, duration: 1.2, ease: 'power1.inOut', keyframes: { rotate: [-4, 7, -3, 0], ease: 'none' } }, 1.0)
        .to(cat, { y: 0, rotate: 0, duration: .2 }, 2.6)
        // price strike
        .fromTo(q('.ps-price s'), { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: .4 }, .6)
-       .fromTo(q('.ps-strike'), { scaleX: 0 }, { scaleX: 1, duration: .45, ease: 'power2.inOut' }, 2.3)
+       // cakaran: 3 goresan muncul berurutan (scaleX + opacity)
+       .fromTo(s.querySelectorAll('.ps-strike path'), { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: .22, stagger: .09, ease: 'power3.out' }, 2.3)
        .to(q('.ps-price s span'), { opacity: .55, duration: .3 }, 2.5)
        .fromTo(q('.ps-price b'), { opacity: 0, scale: .6, y: 8 }, { opacity: 1, scale: 1, y: 0, duration: .55, ease: 'back.out(2.4)' }, 2.6)
        .to(cup, { y: -10, duration: .25, yoyo: true, repeat: 1, ease: 'power2.out' }, 2.7);
@@ -234,7 +251,7 @@ if (root) {
   const startIdle = (s: HTMLElement) => {
     idle?.kill(); idle = gsap.timeline({ repeat: -1 });
     const cat = s.querySelector('.ps-cat'), tail = s.querySelector('.ps-tail'), pin = s.querySelector('.ps-pin'), cup = s.querySelector('.ps-cup');
-    if (cat) idle.to(cat, { scaleY: 1.02, scaleX: .995, duration: 1.4, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0);
+    if (cat && !lite) idle.to(cat, { scaleY: 1.02, scaleX: .995, duration: 1.4, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0);
     if (tail) idle.to(tail, { rotate: 8, duration: .7, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0);
     if (pin) idle.to(pin, { y: -4, duration: 1.4, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0);
     if (cup) idle.to(cup, { y: -4, duration: 1.4, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 0);

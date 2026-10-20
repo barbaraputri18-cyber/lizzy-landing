@@ -31,6 +31,14 @@ const mDef = mCats.includes('Kopi') ? 'Kopi' : mCats[0];
 const M_FOLD = 6;
 const mIdx = (m) => data.menuLengkap.filter((x) => x.cat === m.cat).indexOf(m);
 const md = (x = '') => x.replace(/\*(.+?)\*/g, '<i>$1</i>');
+// Pesan online (ojol): URL kosong -> tombol nonaktif + 'Segera hadir'; URL diisi -> link keluar
+const oo = data.orderOnline ?? {};
+const okUrl = (u) => typeof u === 'string' && /^https:\/\/\S+$/i.test(u.trim()) ? u.trim() : '';
+const ojol = [
+  { id: 'grabfood', label: 'GrabFood', logo: 'img/ojol/grabfood.png', w: 1000, h: 184 },
+  { id: 'gofood', label: 'GoFood', logo: 'img/ojol/gofood.svg', w: 308, h: 63 },
+  { id: 'shopeefood', label: 'ShopeeFood', logo: 'img/ojol/shopee.svg', w: 264, h: 375, text: true },
+].map((o) => ({ ...o, url: okUrl(oo[o.id]) }));
 const desc = `Lizzy Coffee, kopi keliling Tangsel (Tangerang Selatan). Kopi susu gula aren, matcha latte, butterscotch latte mulai ${rp(Math.min(...data.menuLengkap.map((m) => m.price)))}. ${hasWa ? 'Pre-order lewat WhatsApp, ambil tanpa antre.' : 'Dibikin pas kamu pesan.'}`;
 const ld = {
   '@context': 'https://schema.org',
@@ -130,6 +138,12 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
     <h1 class="blur-in" set:html={md(c.heroTitle)} />
     <p class="lead rv">{hasWa ? c.heroLead : c.heroLeadNoWa}</p>
     <div class="cta-row rv">{hasWa ? <a href="#preorder" class="btn primary">Pre-order <span>→</span></a> : <a href="#menu-lengkap" class="btn primary">Lihat menu <span>→</span></a>}<a href="#jadwal" class="btn ghost">Lihat jadwal</a></div>
+    <div class="ojol rv" aria-label="Pesan online">
+      <p class="ojol-lbl">Pesan online</p>
+      <ul>{ojol.map((o) => <li>{o.url
+        ? <a class={`ojol-btn o-${o.id}`} href={o.url} target="_blank" rel="noopener" aria-label={`Pesan di ${o.label}`}><img src={o.logo} alt={o.label} width={o.w} height={o.h} loading="lazy" decoding="async" />{o.text && <b>{o.label}</b>}</a>
+        : <span class={`ojol-btn o-${o.id} is-soon`} aria-disabled="true" title={`${o.label} segera hadir`}><img src={o.logo} alt={o.label} width={o.w} height={o.h} loading="lazy" decoding="async" />{o.text && <b>{o.label}</b>}<em>Segera hadir</em></span>}</li>)}</ul>
+    </div>
     <ul class="perks rv"><li><b>{c.perkPre}</b><span>{c.perkPreSub}</span></li>{data.titik.length > 0 && <li><b>{data.titik.length}</b><span>titik mangkal</span></li>}<li><b>Tunai</b><span>&amp; QRIS</span></li></ul>
   </div>
 </section>
