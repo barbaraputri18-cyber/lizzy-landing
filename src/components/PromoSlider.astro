@@ -18,7 +18,8 @@ const promos = (D.promos ?? []).map((p: any) => {
   const hours = (j?.time ?? '').replace(/\s*–\s*/g, '–');
   return { ...p, title: p.title ?? `${j?.days?.includes('–') ? 'Minggu ini' : day + ' ini'} di *${place}*`, desc: p.desc ?? `${t.name} · ${hours}`, address: t.address, place };
 });
-const md = (s = '') => s.replace(/\*(.+?)\*/g, '<i>$1</i>');
+const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+const md = (s = '') => esc(s).replace(/\*(.+?)\*/g, '<i>$1</i>');
 const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
 ---
 {promos.length > 0 && <section class="pslider" id="promo" aria-roledescription="carousel" aria-label="Promo Lizzy Coffee">
