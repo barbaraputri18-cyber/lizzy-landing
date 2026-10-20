@@ -16,7 +16,10 @@ export async function getLanding() {
     if (res.ok) {
       const json = await res.json();
       const d = json?.data ?? json;
-      if (REQUIRED.every((k) => d && k in d)) { data = { ...fallback, ...d, promos: d.promos ?? [] }; source = 'api'; }
+      if (REQUIRED.every((k) => d && k in d)) { data = { ...fallback, ...d }; source = 'api';
+        // API masih kosong (menu/promo belum diisi di dashboard): pakai landing.json
+        for (const k of ['menu', 'menuLengkap', 'promos']) if (!Array.isArray(d[k]) || d[k].length === 0) data[k] = fallback[k];
+      }
       else console.warn('[landing] API format tidak lengkap, pakai landing.json');
     } else console.warn(`[landing] API ${res.status}, pakai landing.json`);
   } catch (e) {
