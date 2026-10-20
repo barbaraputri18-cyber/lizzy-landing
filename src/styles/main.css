@@ -457,6 +457,18 @@ a.ojol-btn:active{transform:scale(.97)}
 .ojol-btn em{position:absolute;top:-8px;right:-6px;font:600 9.5px/1 var(--sans);font-style:normal;letter-spacing:.04em;padding:4px 7px;border-radius:99px;background:var(--acc);color:var(--acc-ink);white-space:nowrap}
 @media (max-width:420px){.ojol-btn{min-width:0;flex:1;padding:0 10px}.ojol ul li{flex:1;display:flex}.ojol-btn img{height:15px}.o-shopeefood img{height:19px}.ojol-btn b{font-size:12px}}
 
+/* ===== micro animations (transform/opacity only) ===== */
+/* day/night: lampu kafe meredup (gradient statis, cuma opacity yang dianimasikan) */
+#theme-reveal{background:radial-gradient(60% 45% at 50% 18%,rgba(255,196,120,.28),transparent 70%),#1a100b}
+#theme-reveal:not(.to-night){background:radial-gradient(60% 45% at 50% 18%,rgba(255,214,150,.35),transparent 70%),#2a1a12}
+/* logo 'bernapas' pelan (di <a>, bukan img, biar nggak bentrok dengan GSAP) */
+.logo{display:inline-block;animation:lzBreath 5.5s ease-in-out infinite;transform-origin:50% 50%}
+@keyframes lzBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+/* ekor: rotate kecil pivot dekat ekor (gambar 1 lembar, ekor bukan elemen terpisah) */
+.peek img,.sitter img{pointer-events:auto;transform-origin:85% 90%}
+.peek img.wiggle,.sitter img.wiggle{animation:lzWiggle .7s ease-in-out}
+@keyframes lzWiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-2.2deg)}45%{transform:rotate(1.8deg)}70%{transform:rotate(-1deg)}}
+@media (prefers-reduced-motion:reduce){.logo,.peek img,.sitter img{animation:none!important}}
 /* ===== live badge buka/istirahat ===== */
 .live-badge{justify-self:start;display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:99px;background:var(--card);border:1px solid var(--line);font:600 12px var(--sans);color:var(--ink2)}
 .live-badge[hidden]{display:none}
