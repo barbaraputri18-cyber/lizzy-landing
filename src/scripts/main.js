@@ -299,4 +299,23 @@ function typing() {
 
 intro(() => { reveals(); pour(); typing(); ScrollTrigger.refresh(); });
 
+/* ---------- reveal safety net ----------
+   Konten nggak boleh nyangkut di opacity 0 (Android Chrome: fast scroll / layout geser setelah gambar & Leaflet load).
+   1) refresh posisi trigger setelah semua aset load, 2) elemen yang sudah lewat/ada di layar tapi masih transparan dipaksa tampil. */
+const REVEAL_SEL = '.blur-in .w, .rv, .mitem, .lier, .jumper-q, .logo img';
+function unstick() {
+  const vh = innerHeight;
+  $$(REVEAL_SEL).forEach((el) => {
+    if (el.closest('[hidden]')) return;
+    const r = el.getBoundingClientRect();
+    if (r.top < vh * .9 && +getComputedStyle(el).opacity < .1) {
+      gsap.getTweensOf(el).forEach((t) => t.progress(1));
+      gsap.set(el, { clearProps: 'opacity,filter,visibility' });
+    }
+  });
+}
+addEventListener('load', () => { ScrollTrigger.refresh(); setTimeout(unstick, 1500); });
+let unstickT; addEventListener('scroll', () => { clearTimeout(unstickT); unstickT = setTimeout(unstick, 1500); }, { passive: true });
+setTimeout(unstick, 4000);
+
 addEventListener('resize', () => { if (!busy) layout(false); });

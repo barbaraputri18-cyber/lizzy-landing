@@ -24,7 +24,7 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
 {promos.length > 0 && <section class="pslider" id="promo" aria-roledescription="carousel" aria-label="Promo Lizzy Coffee">
   <div class="ps-viewport">
     {promos.map((p: any, i: number) => (
-      <div class={`ps-slide ps-${p.type} ${p.anim ? 'a-' + p.anim : ''}`} data-slide={i} role="group" aria-roledescription="slide" aria-label={`${i + 1} dari ${promos.length}`} aria-hidden={i ? 'true' : 'false'}>
+      <div class={`ps-slide ps-${p.type} ${p.anim ? 'a-' + p.anim : ''} ${i === 0 ? 'on' : ''}`} data-slide={i} role="group" aria-roledescription="slide" aria-label={`${i + 1} dari ${promos.length}`} aria-hidden={i ? 'true' : 'false'}>
         {p.type === 'image' ? (
           <a class="ps-full" href={p.href || '#'}>
             <img class="ps-bg" src={p.src} alt={p.alt || p.title} />
@@ -258,10 +258,10 @@ if (root) {
   };
   // only animate/autoplay while the slider is on screen; replay the current slide when it comes back into view
   new IntersectionObserver(([e]) => {
-    const was = visible; visible = e.intersectionRatio >= .35;
-    if (visible && !was) go(cur < 0 ? 0 : cur, true);
+    const was = visible; visible = e.intersectionRatio >= .2 || e.intersectionRect.height >= innerHeight * .5;
+    if (visible && !was) go(cur < 0 ? 0 : cur, true); arm();
     if (!visible) { prog?.pause(); idle?.pause(); }
-  }, { threshold: [0, .35, .6] }).observe(root);
+  }, { threshold: [0, .2, .35, .6] }).observe(root);
 
   root.querySelector('[data-prev]')!.addEventListener('click', () => go(cur - 1));
   root.querySelector('[data-next]')!.addEventListener('click', () => go(cur + 1));
@@ -276,6 +276,10 @@ if (root) {
 
   const sync = () => { const n = document.documentElement.dataset.theme === 'night'; root.querySelectorAll<HTMLImageElement>('img[data-day]').forEach(im => { im.src = (n ? im.dataset.night : im.dataset.day)!; }); };
   new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-  sync(); go(0); if (!visible) { tl?.pause(0); }
+  sync(); go(0); if (!visible) { tl?.progress(1).pause(); }
+  // safety net: kalau intro nggak jalan (tab/IO glitch, fast scroll), jangan biarkan teks slide transparan
+  const unstick = () => { const s = slides[cur]; if (!s) return; const els = [...s.querySelectorAll<HTMLElement>('.ps-copy > *, .ps-cap > *, .ps-actor, .ps-cup, .ps-price b, .ps-price s, .ps-bg')]; if (els.some((e) => +getComputedStyle(e).opacity < .1)) { tl?.progress(1); gsap.set(els, { clearProps: 'opacity' }); } };
+  let ut: number | undefined; const arm = () => { clearTimeout(ut); ut = window.setTimeout(unstick, 1500); };
+  addEventListener('scroll', arm, { passive: true }); addEventListener('load', arm); root.addEventListener('click', arm);
 }
 </script>
