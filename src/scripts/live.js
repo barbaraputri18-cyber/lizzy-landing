@@ -1,4 +1,7 @@
-// Status live: posisi Lizzy + menu habis, di-poll tiap 60 detik dari /api/public/status.
+// Status live: badge buka/istirahat, posisi Lizzy, 'Find Lizzy today', menu habis.
+// /api/public/status di-poll tiap 60 detik; /api/public/landing sekali saat load (soldOut per menu).
+// Gagal (CORS/jaringan) = diam: badge tetap hidden, data build-time dipakai.
+import L from 'leaflet';
 const API = (window.LZ_API || 'https://coffe.lizzy.my.id/api/public').replace(/\/$/, '');
 const KEY = 'lz-status';
 const titik = (() => { try { return JSON.parse(document.getElementById('landing-data').textContent).titik || []; } catch { return []; } })();
@@ -15,16 +18,69 @@ function apply(s) {
   document.querySelectorAll('[data-live-lbl]').forEach((el) => { el.textContent = hasEta ? 'Lizzy sekarang di' : 'Lagi di'; });
   document.querySelectorAll('[data-until-lbl]').forEach((el) => { el.textContent = hasEta ? 'buka s/d' : 'buka sampai jam'; });
   if (s.openUntil != null) set('until', s.openUntil);
-  if (Array.isArray(s.soldOut)) {
-    const out = new Set(s.soldOut);
-    document.querySelectorAll('.mitem[data-id]').forEach((li) => {
-      const isOut = out.has(li.dataset.id);
-      li.classList.toggle('out', isOut);
-      li.querySelectorAll('.mi-add').forEach((a) => { a.hidden = isOut; });
-    });
-  }
+  badge(s);
+  today(s);
   document.dispatchEvent(new CustomEvent('lz:status', { detail: s }));
 }
+
+const hhmm = (v) => String(v ?? '').trim().replace(/^(\d{1,2})[:.](\d{2}).*$/, (_, h, m) => `${h.padStart(2, '0')}.${m}`);
+function badge(s) {
+  const b = document.querySelector('[data-live-badge]'); if (!b || typeof s.open !== 'boolean') return;
+  const until = s.openUntil ? hhmm(s.openUntil) : '';
+  b.querySelector('[data-live-badge-txt]').textContent = s.open ? (until ? `Lizzy lagi buka, sampai ${until}` : 'Lizzy lagi buka') : 'Lagi istirahat';
+  b.classList.toggle('is-open', s.open); b.hidden = false;
+}
+
+// ---- Find Lizzy today (peta + petunjuk arah); tanpa titik = section tetap hidden ----
+let tMap, tMark;
+function today(s) {
+  const sec = document.querySelector('[data-today]'); if (!sec) return;
+  const t = s.titikId != null ? titik.find((x) => String(x.id) === String(s.titikId)) : null;
+  const lat = Number.isFinite(+s.lat) && s.lat !== null ? +s.lat : t ? +t.lat : NaN;
+  const lng = Number.isFinite(+s.lng) && s.lng !== null ? +s.lng : t ? +t.lng : NaN;
+  if (s.open === false || !Number.isFinite(lat) || !Number.isFinite(lng)) { sec.hidden = true; return; }
+  sec.hidden = false; sec.dataset.lat = lat; sec.dataset.lng = lng;
+  const nm = sec.querySelector('[data-today-name]'), ad = sec.querySelector('[data-today-addr]');
+  if (t) { nm.textContent = t.name; ad.textContent = t.address ?? ''; }
+  sec.querySelector('[data-today-dir]').href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  drawToday(sec, lat, lng);
+}
+function drawToday(sec, lat, lng) {
+  const el = sec.querySelector('#mapToday'); if (!el) return;
+  if (!tMap) {
+    tMap = L.map(el, { zoomControl: false, scrollWheelZoom: false, dragging: !L.Browser.mobile, tap: false, attributionControl: true });
+    tMap.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19, referrerPolicy: 'strict-origin-when-cross-origin' }).addTo(tMap);
+    tMark = L.marker([lat, lng], { icon: L.divIcon({ className: 'lz-pin-wrap', html: '<div class="lz-pin"><span class="ring"></span><img src="img/logo.webp" alt=""></div>', iconSize: [54, 60], iconAnchor: [27, 64] }) }).addTo(tMap);
+  } else tMark.setLatLng([lat, lng]);
+  tMap.setView([lat, lng], 16, { animate: false });
+}
+{ const sec = document.querySelector('[data-today]'); if (sec && !sec.hidden && sec.dataset.lat) drawToday(sec, +sec.dataset.lat, +sec.dataset.lng); }
+
+// ---- 'Habis' real-time per menu (aturan: kalau SEMUA soldOut, abaikan) ----
+const norm = (x) => String(x ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+async function stock() {
+  try {
+    const r = await fetch(`${API}/landing`, { headers: { Accept: 'application/json' } });
+    if (!r.ok) return;
+    const j = await r.json(); const d = j?.data ?? j;
+    const list = Array.isArray(d?.menuLengkap) ? d.menuLengkap : [];
+    if (!list.length) return;
+    const allOut = list.every((m) => m?.soldOut);
+    const byName = new Map(list.map((m) => [norm(m.name), !!m.soldOut])), byId = new Map(list.map((m) => [String(m.id), !!m.soldOut]));
+    document.querySelectorAll('.mitem[data-id]').forEach((li) => {
+      const v = byName.get(norm(li.dataset.n)) ?? byId.get(li.dataset.id);
+      if (v === undefined) return;
+      const isOut = allOut ? false : v;
+      li.classList.toggle('out', isOut);
+      li.querySelectorAll('.mi-add').forEach((a) => { a.hidden = isOut; });
+      let na = li.querySelector('.mi-na');
+      if (isOut && !na) { na = document.createElement('span'); na.className = 'mi-na'; na.textContent = 'Besok lagi ya'; li.querySelector('.mi-foot')?.append(na); }
+      if (na) na.hidden = !isOut;
+    });
+  } catch { /* CORS/jaringan: pakai data build-time */ }
+}
+stock();
 
 async function poll() {
   if (document.hidden) return;
