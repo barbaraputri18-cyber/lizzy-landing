@@ -208,5 +208,35 @@
       "peek": true,
       "href": "#menu"
     }
-  ]
+  ],
+  "copy": {
+    "_note": "Teks halaman; *teks* = italic emas. heroLead dipakai kalau waNumber ada, heroLeadNoWa kalau kosong.",
+    "heroEyebrow": "Kopi keliling Tangsel",
+    "heroTitle": "Bad day?<br/>*Get hugged.*",
+    "heroLead": "Pre-order lewat WA, ambil di titik Lizzy terdekat. Kopi keliling Tangsel.",
+    "perkPre": "Pre-order",
+    "perkPreSub": "ambil tanpa antre",
+    "menuEyebrow": "Signature Lizzy",
+    "menuTitle": "Pick your hug.",
+    "menuPick": "Pesan yang ini",
+    "fullEyebrow": "Menu lengkap",
+    "fullTitle": "Teman ngopi *lainnya.*",
+    "brewEyebrow": "Diseduh di tempat",
+    "brewTitle": "Order. Grab. Get hugged.",
+    "poTitle": "Tell Lizzy your order.",
+    "poLead": "Isi sebentar, langsung kebuka WhatsApp dengan pesan yang udah jadi.",
+    "poLeadSoon": "Sebentar lagi kamu bisa pesan duluan dari sini.",
+    "poSoonText": "Sementara itu, mampir langsung ke Lizzy ya. Bayar di tempat: Tunai atau QRIS.",
+    "jadwalEyebrow": "Jadwal mangkal di Tangsel",
+    "jadwalTitle": "Find Lizzy.",
+    "closeEyebrow": "Until the next hug",
+    "closeTitle": "Lizzy will save you a cup.",
+    "closeLead": "Pesan dari sekarang, kopimu udah siap pas kamu sampai di titik Lizzy. Tanpa antre.",
+    "footBrand": "Kopi keliling Tangerang Selatan. Coffee that hugs you.",
+    "ovTitle": "Pesananmu lagi Lizzy siapin",
+    "heroLeadNoWa": "Pre-order dulu, ambil di titik Lizzy terdekat. Kopi keliling Tangsel.",
+    "menuLead": "Tiga menu pilihan Lizzy hari ini.",
+    "jadwalLead": "Lizzy mangkal di sekitar Tangsel, cek jadwalnya di sini.",
+    "closeLeadNoWa": "Pre-order segera dibuka. Kopimu nanti udah siap pas kamu sampai di titik Lizzy."
+  }
 }

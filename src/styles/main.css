@@ -388,7 +388,7 @@ fieldset{border:0;display:grid;gap:10px}legend,.fld>span{font:600 11px var(--san
 [data-theme=night] .soon{background:linear-gradient(180deg,var(--card),color-mix(in srgb,var(--gold) 6%,var(--card)))}
 [data-eta-wrap][hidden]{display:none!important}
 .soon-cta .btn{width:auto;flex:0 1 auto}
-.hero-visual.no-loc .peek{display:none}
+.hero-visual.no-loc>.peek{display:none}
 .soon-note{font:500 14px var(--sans);color:var(--ink2);padding:10px 18px;border:1px dashed var(--line);border-radius:99px}
 .preorder .soon{max-width:520px;margin:0 auto}
 /* empty titik: peta area Tangsel + card di atasnya */
@@ -400,3 +400,10 @@ fieldset{border:0;display:grid;gap:10px}legend,.fld>span{font:600 11px var(--san
 .hero-visual.no-loc{padding:16px 16px 8px}
 .hero-visual.no-loc .map-empty{min-height:380px}
 @media (min-width:960px){.hero-visual.no-loc{padding:0;display:block}.hero-visual.no-loc .map-empty{height:100%;border:0;border-radius:0}}
+
+/* Lizzy peeking over the 'segera diumumkan' card */
+.soon-wrap{position:relative;z-index:2;width:calc(100% - 32px);max-width:440px;margin:64px auto 24px}
+.soon-wrap .soon{width:100%;margin:0;position:relative;z-index:1}
+.soon-peek{position:absolute;right:22px;bottom:calc(100% - 14px);width:104px;height:84px;overflow:hidden;z-index:0;pointer-events:none}
+.soon-peek img{display:block;width:100%;height:auto}
+@media (min-width:960px){.soon-peek{width:120px;height:96px;right:30px}}
