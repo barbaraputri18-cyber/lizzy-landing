@@ -168,7 +168,7 @@
       "type": "lizzy",
       "anim": "push",
       "pose": "cat-push",
-      "cup": "cup-aren",
+      "cups": ["cup-butterscotch", "cup-aren", "cup-matcha"],
       "eyebrow": "Paket hemat",
       "title": "Trio *Bestseller*",
       "desc": "Aren's Meow, Butterscotch Paws, dan Matcha Whiskers dalam satu paket.",

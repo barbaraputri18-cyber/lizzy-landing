@@ -53,7 +53,7 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
                   <svg class="ps-pin" viewBox="0 0 24 32"><path d="M12 0C5.4 0 0 5.2 0 11.7 0 20.5 12 32 12 32s12-11.5 12-20.3C24 5.2 18.6 0 12 0z"/><circle cx="12" cy="11.5" r="4.5"/></svg>
                 </div>
               )}
-              {p.cup && <img class="ps-cup" src={img(p.cup)} alt="" />}
+              {p.cups ? <div class="ps-cup ps-cups">{p.cups.map((c: string) => <img src={img(c)} alt="" />)}</div> : p.cup && <img class="ps-cup" src={img(p.cup)} alt="" />}
               <div class="ps-actor">
                 <img class={`ps-cat cat ${p.anim === 'peek' ? 'ps-body' : ''}`} src={`img/${p.pose}.webp`} data-day={`img/${p.pose}.webp`} data-night={`img/${p.pose}-n.webp`} alt="Ilustrasi Lizzy" />
                 {p.anim === 'peek' && <img class="ps-tail cat" src={`img/${p.pose}.webp`} data-day={`img/${p.pose}.webp`} data-night={`img/${p.pose}-n.webp`} alt="" aria-hidden="true" />}
@@ -94,6 +94,7 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
 .ps-tail{position:absolute;inset:0;transform-origin:74% 86%;-webkit-mask:radial-gradient(ellipse 30% 22% at 88% 92%,#000 55%,transparent 100%);mask:radial-gradient(ellipse 30% 22% at 88% 92%,#000 55%,transparent 100%)}
 .ps-body{-webkit-mask:radial-gradient(ellipse 30% 22% at 88% 92%,transparent 55%,#000 100%);mask:radial-gradient(ellipse 30% 22% at 88% 92%,transparent 55%,#000 100%)}
 .ps-cup{position:absolute;bottom:5%;height:52%;width:auto}
+.ps-cups{display:flex;align-items:flex-end}.ps-cups img{height:100%;width:auto}.ps-cups img+img{margin-left:-14%}.ps-cups img:nth-child(2){height:112%;position:relative;z-index:2}
 .a-push .ps-actor{left:2%;}.a-push .ps-cup{left:58%}
 .a-peek .ps-actor{right:-4%;}.a-peek .ps-cup{left:18%;height:60%}
 .a-lie .ps-actor{left:-2%;height:60%;bottom:4%;z-index:3}
