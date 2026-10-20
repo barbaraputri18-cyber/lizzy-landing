@@ -127,7 +127,7 @@ const fitP = () => { const x = sideX(), sc = x > 200 ? .72 : .62; P.r.x = x; P.l
 function layout(anim) { fitP(); placeSitter(); cups.forEach((c, k) => gsap.to(c, { ...P[pos(k)], duration: anim ? .9 : 0, ease: 'power3.inOut' })); }
 function setCard() {
   const m = data.menu[cur];
-  $('#dTag').textContent = m.tag; $('#dName').textContent = m.name; $('#dDesc').textContent = m.desc; $('#dPrice').textContent = rp(m.price);
+  $('#dTag').textContent = m.tag; $('#dName').textContent = m.name; if ($('#dCommon')) $('#dCommon').textContent = m.namaUmum ?? ''; $('#dDesc').textContent = m.desc; $('#dPrice').textContent = rp(m.price);
   $$('.dots button').forEach((b, i) => b.classList.toggle('on', i === cur));
   $$('.mini button').forEach((b, i) => b.classList.toggle('on', i === cur));
   if (!RM) gsap.fromTo('#drinkCard > *', { opacity: 0, y: 10, filter: 'blur(6px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: .05, duration: .5 });
@@ -244,10 +244,14 @@ function pour() {
 }
 
 /* ---------- full menu ---------- */
+const fullSec = $('#menu-lengkap'), more = $('#miMore');
+const setMore = (c) => { if (!more) return; fullSec.classList.remove('expanded'); more.setAttribute('aria-expanded', 'false'); more.hidden = !$$('.mitem.xtra').some((it) => it.dataset.c === c); more.textContent = `Lihat semua ${c.toLowerCase()}`; };
+more?.addEventListener('click', () => { const on = fullSec.classList.toggle('expanded'); more.setAttribute('aria-expanded', String(on)); const c = $('#cats button.on').dataset.c; more.textContent = on ? 'Tampilkan lebih sedikit' : `Lihat semua ${c.toLowerCase()}`; if (!on) fullSec.scrollIntoView({ block: 'start', behavior: RM ? 'auto' : 'smooth' }); });
 $$('#cats button').forEach((b) => b.addEventListener('click', () => {
-  $$('#cats button').forEach((x) => x.classList.toggle('on', x === b));
+  $$('#cats button').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', String(x === b)); });
   const items = $$('.mitem');
-  items.forEach((it) => { it.hidden = !(b.dataset.c === 'all' || it.dataset.c === b.dataset.c); });
+  items.forEach((it) => { it.hidden = it.dataset.c !== b.dataset.c; });
+  setMore(b.dataset.c);
   if (!RM) gsap.fromTo(items.filter((i) => !i.hidden), { opacity: 0, y: 14 }, { opacity: 1, y: 0, stagger: .04, duration: .4 });
 }));
 $$('.mi-add').forEach((a) => a.addEventListener('click', () => { const id = a.dataset.id; const r = $(`#poForm input[value="${id}"]`); if (r) { r.checked = true; $('#poForm').other.value = ''; } else $('#poForm').other.value = id; total(); }));

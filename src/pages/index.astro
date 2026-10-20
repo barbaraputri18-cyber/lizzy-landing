@@ -25,6 +25,11 @@ const ig = socials.find((x) => /instagram/i.test(x.label + x.url));
 const soonSub = hasWa && ig ? 'Cek WhatsApp atau Instagram buat lokasi hari ini.' : hasWa ? 'Cek WhatsApp buat lokasi hari ini.' : ig ? 'Cek Instagram buat lokasi hari ini.' : 'Pantau halaman ini ya, lokasi segera diumumkan.';
 const site = 'https://lizzy.my.id/';
 const c = data.copy ?? {};
+// menu lengkap: satu kategori per tab (default Kopi); di mobile cuma M_FOLD item pertama + toggle. Semua item tetap di DOM.
+const mCats = [...new Set(data.menuLengkap.map((m) => m.cat))];
+const mDef = mCats.includes('Kopi') ? 'Kopi' : mCats[0];
+const M_FOLD = 6;
+const mIdx = (m) => data.menuLengkap.filter((x) => x.cat === m.cat).indexOf(m);
 const md = (x = '') => x.replace(/\*(.+?)\*/g, '<i>$1</i>');
 const desc = `Lizzy Coffee, kopi keliling Tangsel (Tangerang Selatan). Kopi susu gula aren, matcha latte, butterscotch latte mulai ${rp(Math.min(...data.menuLengkap.map((m) => m.price)))}. ${hasWa ? 'Pre-order lewat WhatsApp, ambil tanpa antre.' : 'Dibikin pas kamu pesan.'}`;
 const ld = {
@@ -49,7 +54,7 @@ const ld = {
     '@type': 'Menu',
     hasMenuSection: [...new Set(data.menuLengkap.map((m) => m.cat))].map((c) => ({
       '@type': 'MenuSection', name: c,
-      hasMenuItem: data.menuLengkap.filter((m) => m.cat === c).map((m) => ({ '@type': 'MenuItem', name: m.name, description: m.desc, offers: { '@type': 'Offer', price: m.price, priceCurrency: 'IDR', availability: m.soldOut ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock' } })),
+      hasMenuItem: data.menuLengkap.filter((m) => m.cat === c).map((m) => ({ '@type': 'MenuItem', name: m.name, ...(m.namaUmum ? { alternateName: m.namaUmum } : {}), description: m.desc, offers: { '@type': 'Offer', price: m.price, priceCurrency: 'IDR', availability: m.soldOut ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock' } })),
     })),
   },
 };
@@ -146,11 +151,12 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
   <article class="drink card" id="drinkCard">
     <span class="tag" id="dTag">{data.menu[0].tag}</span>
     <h3 id="dName">{data.menu[0].name}</h3>
+    <small class="d-common" id="dCommon">{data.menu[0].namaUmum ?? ''}</small>
     <p id="dDesc">{data.menu[0].desc}</p>
     <div class="row"><b id="dPrice">{rp(data.menu[0].price)}</b></div>
     {hasWa && <a href="#preorder" class="btn primary" id="pickBtn">{c.menuPick} <span>→</span></a>}
   </article>
-  <ul class="mini">{data.menu.map((m, i) => <li><button type="button" data-i={i}><img src={img(m.img)} alt="" loading="lazy" /><span>{m.name}<b>{rp(m.price)}</b></span></button></li>)}</ul>
+  <ul class="mini">{data.menu.map((m, i) => <li><button type="button" data-i={i}><img src={img(m.img)} alt="" loading="lazy" /><span><i class="mn">{m.name}</i><b>{rp(m.price)}</b></span></button></li>)}</ul>
   </div></div>
 </section>
 
@@ -158,13 +164,14 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 
 <section id="menu-lengkap" class="fullmenu">
   <div class="sec-head row-head"><div><p class="eyebrow rv">{c.fullEyebrow}</p><h2 class="blur-in" set:html={md(c.fullTitle)} /></div>
-  <div class="cats" id="cats"><button type="button" class="on" data-c="all">Semua</button>{[...new Set(data.menuLengkap.map((m) => m.cat))].map((c) => <button type="button" data-c={c}>{c}</button>)}</div></div>
-  <ul class="mgrid">{data.menuLengkap.map((m) => <li class={`mitem card ${m.soldOut ? 'out' : ''}`} data-c={m.cat} data-id={m.id}>
+  <div class="cats" id="cats" role="tablist" aria-label="Kategori menu">{mCats.map((c) => <button type="button" role="tab" class={c === mDef ? 'on' : ''} aria-selected={c === mDef ? 'true' : 'false'} aria-controls="mgrid" data-c={c}>{c}</button>)}</div></div>
+  <ul class="mgrid" id="mgrid">{data.menuLengkap.map((m) => <li class={`mitem card ${m.soldOut ? 'out' : ''} ${mIdx(m) >= M_FOLD ? 'xtra' : ''}`} data-c={m.cat} data-id={m.id} hidden={m.cat !== mDef}>
     <span class="swatch" style={`--t:${m.tone}`}></span>
     <div class="mi-top"><small>{m.cat}</small>{m.signature && <span class="badge sig">Signature</span>}{m.soldOut && <span class="badge so">Habis</span>}</div>
-    <b class="mi-name">{m.name}</b><p>{m.desc}</p>
+    <b class="mi-name">{m.name}</b>{m.namaUmum && <small class="mi-common">{m.namaUmum}</small>}<p>{m.desc}</p>
     <div class="mi-foot"><span class="mi-price">{rp(m.price)}</span>{m.soldOut ? <span class="mi-na">Besok lagi ya</span> : hasWa && <a href="#preorder" class="mi-add" data-id={m.id}>Pesan +</a>}</div>
   </li>)}</ul>
+  <button type="button" class="mi-more" id="miMore" aria-expanded="false" aria-controls="mgrid" hidden={data.menuLengkap.filter((m) => m.cat === mDef).length <= M_FOLD}>Lihat semua {mDef.toLowerCase()}</button>
 </section>
 
 <!-- 4. Brew -->

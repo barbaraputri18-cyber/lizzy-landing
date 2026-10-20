@@ -24,6 +24,9 @@ export async function getLanding() {
   }
   // Uji state kosong: LZ_EMPTY_TITIK=1 npm run build
   if (typeof process !== 'undefined' && process.env?.LZ_EMPTY_TITIK) data = { ...data, titik: [], jadwal: [] };
+  // urutkan menu sesuai `order` (data API menang; item tanpa order tetap di urutan aslinya)
+  const byOrder = (a) => (Array.isArray(a) ? a.map((m, i) => [m, i]).sort((x, y) => (x[0].order ?? 1e9) - (y[0].order ?? 1e9) || x[1] - y[1]).map(([m]) => m) : a);
+  data = { ...data, menu: byOrder(data.menu), menuLengkap: byOrder(data.menuLengkap) };
   data = { ...data, titik: Array.isArray(data.titik) ? data.titik : [], jadwal: Array.isArray(data.jadwal) ? data.jadwal : [] };
   cached = { ...data, _source: source };
   return cached;

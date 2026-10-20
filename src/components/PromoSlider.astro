@@ -28,7 +28,7 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
         {p.type === 'image' ? (
           <a class="ps-full" href={p.href || '#'}>
             <img class="ps-bg" src={p.src} alt={p.alt || p.title} />
-            <span class="ps-cap"><small>Banner promo</small><b>{p.title}</b></span>
+            <span class="ps-cap"><small>{p.eyebrow || 'Banner promo'}</small><b>{p.title}</b></span>
             {p.peek && <img class="ps-corner cat" src="img/cat-peek.webp" data-day="img/cat-peek.webp" data-night="img/cat-peek-n.webp" alt="" />}
           </a>
         ) : (
