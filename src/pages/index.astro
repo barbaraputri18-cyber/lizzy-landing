@@ -34,7 +34,7 @@ const mIdx = (m) => data.menuLengkap.filter((x) => x.cat === m.cat).indexOf(m);
 const today = st && data.status?.titikId != null && Number.isFinite(+st.lat) && Number.isFinite(+st.lng) ? st : null;
 const dirUrl = (lat, lng) => `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-const md = (x = '') => esc(x).replace(/\*(.+?)\*/g, '<i>$1</i>');
+const md = (x = '') => esc(x).replace(/&lt;br\s*\/?&gt;/gi, '<br/>').replace(/\*(.+?)\*/g, '<i>$1</i>');
 // Pesan online (ojol): URL kosong -> tombol nonaktif + 'Segera hadir'; URL diisi -> link keluar
 const oo = data.orderOnline ?? {};
 const okUrl = (u) => typeof u === 'string' && /^https:\/\/\S+$/i.test(u.trim()) ? u.trim() : '';
