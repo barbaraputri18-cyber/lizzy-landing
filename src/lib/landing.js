@@ -21,16 +21,20 @@ export function mapId(it) {
 export function normalizeItem(it, i) {
   if (!it || typeof it !== 'object') return it;
   const id = mapId(it);
+  // cocok dengan item landing.json (id hasil map / nama ternormalisasi) -> pakai nama brand & tone dari landing.json
   const fb = fbById(id) ?? fbByName(it.name) ?? {};
+  const hit = fb.id != null;
   const isTrio = id === 'trio';
   return {
     ...it,
     id,
-    namaUmum: it.namaUmum ?? it.generic_name ?? fb.namaUmum,
+    name: hit ? fb.name : it.name,
+    posName: it.name,
+    namaUmum: it.namaUmum || it.generic_name || fb.namaUmum,
     desc: it.public_description || it.desc || fb.desc,
     tag: it.tag ?? fb.tag,
     img: it.img ?? fb.img,
-    tone: it.tone ?? fb.tone,
+    tone: fb.tone ?? it.tone,
     cat: it.cat || (isTrio ? 'Bundle' : fb.cat),
     order: it.order ?? fb.order ?? i,
   };
