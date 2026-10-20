@@ -11,6 +11,12 @@
     ],
     "socials": []
   },
+  "orderOnline": {
+    "_note": "Link toko ojol. Kosong = tombol tampil tapi nonaktif + label 'Segera hadir'. Isi URL toko untuk mengaktifkan.",
+    "grabfood": "",
+    "gofood": "",
+    "shopeefood": ""
+  },
   "status": {
     "titikId": null,
     "etaMin": 5,

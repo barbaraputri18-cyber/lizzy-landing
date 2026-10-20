@@ -33,7 +33,7 @@ section{position:relative;padding:56px 20px}
 .intro-tag{position:absolute;left:0;right:0;top:calc(50% + 84px);text-align:center;z-index:2;font:500 30px var(--hand);color:#e0b46a}
 #skip{position:absolute;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));z-index:3;background:rgba(255,255,255,.08);color:#f3e6d2;border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:9px 16px;font:500 13px var(--sans)}
 
-#theme-reveal{position:fixed;inset:0;z-index:90;pointer-events:none;clip-path:circle(0 at 100% 0)}
+#theme-reveal{position:fixed;inset:0;z-index:90;pointer-events:none;opacity:0}
 
 /* floating beans */
 .beans{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
@@ -82,16 +82,18 @@ main,header,footer{position:relative;z-index:1}
 .stage{position:relative;height:380px;margin:0 -20px;overflow:hidden;touch-action:pan-y;perspective:900px}
 .halo{position:absolute;left:50%;top:46%;width:300px;height:300px;margin:-150px 0 0 -150px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--gold) 30%,transparent),transparent 65%)}
 .cups{position:absolute;inset:0}
-.cup{position:absolute;left:50%;top:22px;width:190px;margin-left:-95px;will-change:transform;transform-style:preserve-3d}
+.cup{position:absolute;left:50%;top:22px;width:190px;margin-left:-95px;will-change:transform;transform-style:preserve-3d;backface-visibility:hidden}
 .cup img{width:100%;user-select:none;-webkit-user-drag:none;position:relative;z-index:1}
 .cup .shadow{position:absolute;left:12%;right:12%;bottom:-10px;height:22px;border-radius:50%;background:radial-gradient(rgba(40,20,10,.45),transparent 70%);filter:blur(4px)}
 .pusher{position:absolute;bottom:20px;left:-200px;width:170px;z-index:5;pointer-events:none}
 .sitter{position:absolute;bottom:18px;right:-6px;width:118px;z-index:4;pointer-events:none}
 .nav{position:absolute;top:44%;z-index:6;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:var(--shadow)}
 .nav.prev{left:14px}.nav.next{right:14px}
-.dots{display:flex;justify-content:center;gap:8px;margin:4px 0 16px}
-.dots button{width:8px;height:8px;border-radius:99px;border:0;background:var(--line);transition:width .3s,background .3s;cursor:pointer}
-.dots button.on{width:26px;background:var(--gold)}
+.dots{display:flex;justify-content:center;gap:0;margin:4px 0 16px}
+/* dot aktif melebar pakai transform (bukan width) supaya nggak relayout */
+.dots button{width:26px;height:8px;padding:0;border:0;background:none;cursor:pointer;display:grid}
+.dots button::before{content:'';border-radius:99px;background:var(--line);transform:scaleX(.31);transition:transform .3s var(--ease),background-color .3s}
+.dots button.on::before{transform:none;background:var(--gold)}
 .drink{padding:20px;display:grid;gap:8px}
 .drink .tag{justify-self:start;font:600 10px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
 .drink h3{font-size:28px}.drink p{color:var(--ink2);font-size:14px}
@@ -163,7 +165,7 @@ fieldset{border:0;display:grid;gap:10px}legend,.fld>span{font:600 11px var(--san
 .ov-card h3{font-size:28px}.ov-sum{font-size:13.5px;color:var(--ink2)}.ov-q{font:500 23px/1.2 var(--hand);color:var(--gold)}
 .ov-row{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:4px}.ov-row .btn{width:auto}
 
-.blur-in .w{display:inline-block;will-change:filter,opacity,transform}
+.blur-in .w{display:inline-block}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.beans{display:none}}
 
@@ -179,7 +181,7 @@ fieldset{border:0;display:grid;gap:10px}legend,.fld>span{font:600 11px var(--san
 .bcup{position:absolute;left:50%;bottom:22px;width:132px;margin-left:-66px}
 .bcup img{width:100%}
 .bcup .ghost{filter:grayscale(1) brightness(1.7) contrast(.7);opacity:.28}
-.fillwrap{position:absolute;inset:0}
+.fillwrap{position:absolute;inset:0;overflow:hidden}
 .fillwrap .full{filter:drop-shadow(0 16px 18px rgba(0,0,0,.45))}
 .wave{position:absolute;left:8%;right:8%;top:0;height:10px;border-radius:50%;background:rgba(255,240,220,.35);filter:blur(2px);opacity:0}
 .swirl{position:absolute;left:18%;top:28%;width:64%;height:44%;border-radius:50%;background:conic-gradient(from 0deg,rgba(255,244,228,.0),rgba(255,244,228,.7),rgba(255,244,228,0) 40%,rgba(255,244,228,.55) 70%,transparent);filter:blur(7px);mix-blend-mode:soft-light;opacity:0}
@@ -430,3 +432,27 @@ fieldset{border:0;display:grid;gap:10px}legend,.fld>span{font:600 11px var(--san
   .fullmenu:not(.expanded) .mitem.xtra{display:none}
   .mi-more:not([hidden]){display:block;margin:12px auto 0;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:10px 18px;font:600 13px var(--sans);cursor:pointer}
 }
+
+/* ===== Android smoothness: layer cuma untuk elemen yang memang bergerak ===== */
+.pusher,.sitter,.fillwrap,.bcup .full{will-change:transform}
+@media (max-width:760px),(pointer:coarse){
+  /* backdrop-filter & bayangan besar mahal di GPU HP murah */
+  .glass,.ps-arrow{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .swirl{mix-blend-mode:normal;filter:none}
+}
+
+/* ===== Pesan online: GrabFood / GoFood / ShopeeFood ===== */
+.ojol{display:grid;gap:8px;margin-top:4px}
+.ojol-lbl{font:600 10.5px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
+.ojol ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0}
+.ojol-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:44px;min-width:104px;padding:0 14px;border-radius:12px;background:#fff;border:1px solid var(--line);text-decoration:none;transition:transform .2s}
+.ojol-btn img{height:18px;width:auto;display:block}
+.ojol-btn b{font:700 13px var(--sans);color:#ee4d2d;letter-spacing:-.01em}
+.o-grabfood{background:#00b14f;border-color:#00b14f}
+.o-shopeefood img{height:22px}
+a.ojol-btn:active{transform:scale(.97)}
+@media (hover:hover){a.ojol-btn:hover{transform:translateY(-2px)}}
+.ojol-btn.is-soon{cursor:default}
+.ojol-btn.is-soon img,.ojol-btn.is-soon b{opacity:.55}
+.ojol-btn em{position:absolute;top:-8px;right:-6px;font:600 9.5px/1 var(--sans);font-style:normal;letter-spacing:.04em;padding:4px 7px;border-radius:99px;background:var(--acc);color:var(--acc-ink);white-space:nowrap}
+@media (max-width:420px){.ojol-btn{min-width:0;flex:1;padding:0 10px}.ojol ul li{flex:1;display:flex}.ojol-btn img{height:15px}.o-shopeefood img{height:19px}.ojol-btn b{font-size:12px}}

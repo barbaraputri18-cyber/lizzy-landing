@@ -4,6 +4,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CustomEase } from 'gsap/CustomEase';
 gsap.registerPlugin(ScrollTrigger, CustomEase);
 CustomEase.create('lzSplit', '0.37,0,0.63,1');
+// Android/HP: cuma animasi transform & opacity (komposit GPU), tanpa filter/clip-path/layout.
+gsap.config({ force3D: true });
+gsap.ticker.lagSmoothing(500, 33);
+ScrollTrigger.config({ ignoreMobileResize: true });
+const LITE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
 
 const data = JSON.parse(document.getElementById('landing-data').textContent);
 // nomor WA dari data (brand.waNumber); kosong = pre-order belum dibuka
@@ -29,14 +34,12 @@ $('#themeBtn').addEventListener('click', (e) => {
   localStorage.setItem('lz-theme', next);
   const rv = $('#theme-reveal');
   if (RM) { root.dataset.theme = next; applySwaps(); return; }
-  const r = e.currentTarget.getBoundingClientRect();
-  const x = r.left + r.width / 2, y = r.top + r.height / 2;
   rv.style.background = next === 'night' ? '#140d0a' : '#f7f1e6';
+  // fade opacity (bukan clip-path) supaya mulus di Android
   gsap.timeline()
-    .fromTo(rv, { clipPath: `circle(0px at ${x}px ${y}px)` }, { clipPath: `circle(150vmax at ${x}px ${y}px)`, duration: .7, ease: 'power2.inOut' })
+    .fromTo(rv, { opacity: 0 }, { opacity: 1, duration: .35, ease: 'power1.inOut' })
     .add(() => { root.dataset.theme = next; applySwaps(); })
-    .to(rv, { opacity: 0, duration: .45 })
-    .set(rv, { clipPath: 'circle(0 at 0 0)', opacity: 1 });
+    .to(rv, { opacity: 0, duration: .4, ease: 'power1.inOut' });
 });
 
 /* ---------- map (Leaflet + CARTO) ---------- */
@@ -88,10 +91,12 @@ $$('.blur-in').forEach((el) => {
 });
 function reveals() {
   if (RM) return;
-  $$('.blur-in').forEach((el) => gsap.from($$('.w', el), { filter: 'blur(12px)', opacity: 0, y: 14, duration: .9, stagger: .07, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%', once: true } }));
-  $$('.rv').forEach((el) => gsap.from(el, { filter: 'blur(8px)', opacity: 0, y: 18, duration: .8, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 92%', once: true } }));
+  // tanpa blur: filter bikin repaint tiap frame di Android
+  $$('.blur-in').forEach((el) => gsap.from($$('.w', el), { opacity: 0, y: 14, duration: .8, stagger: LITE ? .05 : .07, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%', once: true } }));
+  $$('.rv').forEach((el) => gsap.from(el, { opacity: 0, y: 18, duration: .7, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 92%', once: true } }));
   gsap.from('.peek', { x: 90, duration: 1.2, ease: 'power3.out', delay: .3 });
-  $$('.fb').forEach((b, i) => gsap.to(b, { y: '-=' + (30 + i * 7), x: '+=' + (i % 2 ? 12 : -12), rotate: i % 2 ? 40 : -40, duration: 5 + i, repeat: -1, yoyo: true, ease: 'sine.inOut' }));
+  // biji kopi melayang: di HP cuma 3 biji yang gerak (kurangi tween paralel)
+  $$('.fb').forEach((b, i) => { if (LITE && i % 3) return; gsap.to(b, { y: '-=' + (30 + i * 7), x: '+=' + (i % 2 ? 12 : -12), rotate: i % 2 ? 40 : -40, duration: 5 + i, repeat: -1, yoyo: true, ease: 'sine.inOut' }); });
 }
 
 /* ---------- header logo ---------- */
@@ -120,7 +125,7 @@ function intro(done) {
 const cups = $$('.cup'), N = cups.length;
 let cur = 0, busy = false, curTl = null, curStep = null, lastClick = 0;
 const pos = (k) => { const d = ((k - cur) % N + N) % N; return d === 0 ? 'c' : d === 1 ? 'r' : 'l'; };
-const P = { c: { x: 0, scale: 1, rotate: 0, opacity: 1, zIndex: 3, filter: 'blur(0px)' }, r: { x: 150, scale: .62, rotate: 6, opacity: .55, zIndex: 2, filter: 'blur(1.5px)' }, l: { x: -150, scale: .62, rotate: -6, opacity: .55, zIndex: 2, filter: 'blur(1.5px)' } };
+const P = { c: { x: 0, scale: 1, rotate: 0, opacity: 1, zIndex: 3 }, r: { x: 150, scale: .62, rotate: 6, opacity: .55, zIndex: 2 }, l: { x: -150, scale: .62, rotate: -6, opacity: .55, zIndex: 2 } };
 const sideX = () => Math.round(Math.max(150, Math.min($('#stage').clientWidth * .27, 300)));
 const placeSitter = (side = 1) => { const st = $('#stage'), sit = $('.sitter'), cw = cups[0].offsetWidth, W = st.clientWidth, sw = sit.offsetWidth; gsap.set(sit, { right: 'auto', left: side === 1 ? W / 2 + cw / 2 - sw * .25 : W / 2 - cw / 2 - sw * .75 }); };
 const fitP = () => { const x = sideX(), sc = x > 200 ? .72 : .62; P.r.x = x; P.l.x = -x; P.r.scale = P.l.scale = sc; };
@@ -130,7 +135,7 @@ function setCard() {
   $('#dTag').textContent = m.tag; $('#dName').textContent = m.name; if ($('#dCommon')) $('#dCommon').textContent = m.namaUmum ?? ''; $('#dDesc').textContent = m.desc; $('#dPrice').textContent = rp(m.price);
   $$('.dots button').forEach((b, i) => b.classList.toggle('on', i === cur));
   $$('.mini button').forEach((b, i) => b.classList.toggle('on', i === cur));
-  if (!RM) gsap.fromTo('#drinkCard > *', { opacity: 0, y: 10, filter: 'blur(6px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', stagger: .05, duration: .5 });
+  if (!RM) gsap.fromTo('#drinkCard > *', { opacity: 0, y: 10 }, { opacity: 1, y: 0, stagger: .05, duration: .45, overwrite: 'auto' });
 }
 function go(dir, to) {
   const now = performance.now(), rapid = now - lastClick < 380; lastClick = now;
@@ -150,6 +155,7 @@ function go(dir, to) {
   cur = next; setCard();
   const W = $('#stage').clientWidth; fitP();
   const S = sideX(), cw = cups[0].offsetWidth, pw = pusher.offsetWidth, start = W + 200 - pw;
+  gsap.killTweensOf(pusher); gsap.killTweensOf(cups);
   const touch = W / 2 + S + cw * P.r.scale / 2 - 24;           // pusher left edge when paws touch the side cup
   const x0 = -Math.max(0, start - (touch + 120));               // start at most ~120px beyond that cup
   const d1 = start - touch, d2 = start - (W / 2 + cw / 2 - 24);
@@ -190,7 +196,7 @@ stage.addEventListener('pointerdown', (e) => { sx = e.clientX; sy = e.clientY; }
 stage.addEventListener('pointerup', (e) => { if (sx == null) return; const dx = e.clientX - sx; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(e.clientY - sy)) go(dx < 0 ? 1 : -1); sx = null; tiltReset(); });
 stage.addEventListener('pointerleave', () => { sx = null; tiltReset(); });
 stage.addEventListener('pointermove', (e) => {
-  if (RM || busy) return;
+  if (RM || busy || e.pointerType !== 'mouse') return;
   const r = stage.getBoundingClientRect(); const nx = (e.clientX - r.left) / r.width - .5, ny = (e.clientY - r.top) / r.height - .5;
   gsap.to(cups[cur], { rotationY: nx * 22, rotationX: -ny * 14, x: (sx != null ? (e.clientX - sx) * .25 : 0), duration: .4, ease: 'power2.out' });
   gsap.to(cups[cur].querySelector('.shadow'), { x: -nx * 18, duration: .4 });
@@ -208,8 +214,12 @@ function pour() {
   ];
   const stepEls = $$('#brewSteps li');
   const setStep = (k) => stepEls.forEach((li, i) => li.classList.toggle('on', i <= k));
-  if (RM) { gsap.set(fw, { clipPath: 'inset(0% 0 0 0)' }); setStep(2); return; }
-  gsap.set(fw, { clipPath: 'inset(100% 0 0 0)' });
+  // isi cup: wrapper digeser turun (yPercent) + isinya digeser balik -> efek 'terisi' cuma pakai transform
+  const inner = [full, $('.bcup .swirl')].filter(Boolean);
+  const fill = (p, o = {}) => [gsap.to(fw, { yPercent: p, ...o }), gsap.to(inner, { yPercent: -p, ...o })];
+  const setFill = (p) => { gsap.set(fw, { yPercent: p }); gsap.set(inner, { yPercent: -p }); };
+  if (RM) { setFill(0); setStep(2); return; }
+  setFill(100);
   gsap.set('.stream', { scaleY: 0, transformOrigin: '50% 0' });
   gsap.set('.drops .ice', { y: -260, opacity: 0 });
   gsap.set('.steam i', { opacity: 0 });
@@ -220,20 +230,20 @@ function pour() {
     stepEls.forEach((li, i) => li.querySelector('span').textContent = c.steps[i]);
     $('.stream').style.setProperty('--sc', c.stream);
     const tl = gsap.timeline({ onComplete: () => gsap.delayedCall(1.4, one) });
-    tl.set(fw, { clipPath: 'inset(100% 0 0 0)' }).set('.wave', { opacity: 1 }).add(() => setStep(-1))
+    tl.add(() => setFill(100)).set('.wave', { opacity: 1 }).add(() => setStep(-1))
       .fromTo('.bcup', { y: 16, rotate: -2, opacity: .0 }, { y: 0, rotate: 0, opacity: 1, duration: .5, ease: 'back.out(1.7)' })
       .add(() => setStep(0))
       .to('.stream', { scaleY: 1, duration: .35, ease: 'power2.in' })
-      .to(fw, { clipPath: 'inset(58% 0 0 0)', duration: .8, ease: 'power1.inOut' }, '<.2')
+      .add(fill(58, { duration: .8, ease: 'power1.inOut' }), '<.2')
       .add(() => setStep(1))
       .fromTo('.swirl', { opacity: 0, rotate: 0, scale: .6 }, { opacity: .85, rotate: 220, scale: 1.1, duration: 1.1, ease: 'sine.inOut' }, '<.3')
-      .to(fw, { clipPath: 'inset(12% 0 0 0)', duration: 1, ease: 'power1.inOut' }, '<')
+      .add(fill(12, { duration: 1, ease: 'power1.inOut' }), '<')
       .to('.stream', { scaleY: 0, transformOrigin: '50% 100%', duration: .3, ease: 'power2.out' })
       .set('.stream', { transformOrigin: '50% 0' })
       .to('.swirl', { opacity: 0, duration: .5 }, '<')
       .add(() => setStep(2))
       .to('.drops .ice', { y: 0, opacity: 1, rotate: (i) => [-18, 12, 30][i], duration: .55, ease: 'bounce.out', stagger: .12 }, '<')
-      .to(fw, { clipPath: 'inset(0% 0 0 0)', duration: .5, ease: 'power2.out' }, '<.2')
+      .add(fill(0, { duration: .5, ease: 'power2.out' }), '<.2')
       .to('.wave', { opacity: 0, duration: .3 }, '<.2')
       .to('.drops .ice', { opacity: 0, duration: .4 }, '+=.1')
       .fromTo('.steam i', { y: 10, opacity: 0, scaleY: .7 }, { y: -50, opacity: .7, scaleY: 1.2, duration: 1.4, stagger: .2, ease: 'sine.out' }, '<-.2')
@@ -255,7 +265,7 @@ $$('#cats button').forEach((b) => b.addEventListener('click', () => {
   if (!RM) gsap.fromTo(items.filter((i) => !i.hidden), { opacity: 0, y: 14 }, { opacity: 1, y: 0, stagger: .04, duration: .4 });
 }));
 $$('.mi-add').forEach((a) => a.addEventListener('click', () => { const id = a.dataset.id; const r = $(`#poForm input[value="${id}"]`); if (r) { r.checked = true; $('#poForm').other.value = ''; } else $('#poForm').other.value = id; total(); }));
-if (!RM) ScrollTrigger.batch('.mitem', { start: 'top 92%', once: true, onEnter: (els) => gsap.from(els, { opacity: 0, y: 24, filter: 'blur(6px)', stagger: .06, duration: .6, ease: 'power3.out' }) });
+if (!RM) ScrollTrigger.batch('.mitem', { start: 'top 92%', once: true, onEnter: (els) => gsap.from(els, { opacity: 0, y: 24, stagger: LITE ? .04 : .06, duration: .55, ease: 'power3.out' }) });
 
 /* ---------- form ---------- */
 const form = $('#poForm');
@@ -279,7 +289,7 @@ form.addEventListener('submit', (e) => {
     .from('.ov-card', { y: 40, opacity: 0, scale: .95, duration: .5, ease: 'back.out(1.6)' })
     .from('.jumper', { y: 60, opacity: 0, duration: .5, ease: 'back.out(2)' }, '-=.2')
     .to('.jumper', { y: -18, duration: .45, yoyo: true, repeat: 3, ease: 'power1.inOut' })
-    .from('.ov-card h3, .ov-sum, .ov-q, .ov-row', { opacity: 0, filter: 'blur(8px)', y: 10, stagger: .08, duration: .5 }, 1.0);
+    .from('.ov-card h3, .ov-sum, .ov-q, .ov-row', { opacity: 0, y: 10, stagger: .08, duration: .5 }, 1.0);
   window.__lastWa = url;
   if (!navigator.webdriver) window.open(url, '_blank', 'noopener');
 });
@@ -310,7 +320,7 @@ function unstick() {
     const r = el.getBoundingClientRect();
     if (r.top < vh * .9 && +getComputedStyle(el).opacity < .1) {
       gsap.getTweensOf(el).forEach((t) => t.progress(1));
-      gsap.set(el, { clearProps: 'opacity,filter,visibility' });
+      gsap.set(el, { clearProps: 'opacity,visibility' });
     }
   });
 }
