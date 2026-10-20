@@ -34,12 +34,12 @@ $('#themeBtn').addEventListener('click', (e) => {
   localStorage.setItem('lz-theme', next);
   const rv = $('#theme-reveal');
   if (RM) { root.dataset.theme = next; applySwaps(); return; }
-  rv.style.background = next === 'night' ? '#140d0a' : '#f7f1e6';
-  // fade opacity (bukan clip-path) supaya mulus di Android
+  // lampu kafe meredup: overlay hangat (gradient statis) cuma di-fade opacity, lalu tema ganti, lampu nyala lagi
+  rv.classList.toggle('to-night', next === 'night');
   gsap.timeline()
-    .fromTo(rv, { opacity: 0 }, { opacity: 1, duration: .35, ease: 'power1.inOut' })
+    .fromTo(rv, { opacity: 0 }, { opacity: .92, duration: .45, ease: 'power2.in' })
     .add(() => { root.dataset.theme = next; applySwaps(); })
-    .to(rv, { opacity: 0, duration: .4, ease: 'power1.inOut' });
+    .to(rv, { opacity: 0, duration: .6, ease: 'power2.out', delay: .05 });
 });
 
 /* ---------- map (Leaflet + CARTO) ---------- */
@@ -251,13 +251,22 @@ function pour() {
 /* ---------- full menu ---------- */
 const fullSec = $('#menu-lengkap'), more = $('#miMore');
 const setMore = (c) => { if (!more) return; fullSec.classList.remove('expanded'); more.setAttribute('aria-expanded', 'false'); more.hidden = !$$('.mitem.xtra').some((it) => it.dataset.c === c); more.textContent = `Lihat semua ${c.toLowerCase()}`; };
-more?.addEventListener('click', () => { const on = fullSec.classList.toggle('expanded'); more.setAttribute('aria-expanded', String(on)); const c = $('#cats button.on').dataset.c; more.textContent = on ? 'Tampilkan lebih sedikit' : `Lihat semua ${c.toLowerCase()}`; if (!on) fullSec.scrollIntoView({ block: 'start', behavior: RM ? 'auto' : 'smooth' }); });
+more?.addEventListener('click', () => { const on = fullSec.classList.toggle('expanded');
+  if (on && !RM) { const c0 = $('#cats button.on').dataset.c; gsap.fromTo($$('.mitem.xtra').filter((i) => i.dataset.c === c0), { opacity: 0, y: 16 }, { opacity: 1, y: 0, stagger: .05, duration: .45, ease: 'power2.out', overwrite: true, clearProps: 'transform' }); } more.setAttribute('aria-expanded', String(on)); const c = $('#cats button.on').dataset.c; more.textContent = on ? 'Tampilkan lebih sedikit' : `Lihat semua ${c.toLowerCase()}`; if (!on) fullSec.scrollIntoView({ block: 'start', behavior: RM ? 'auto' : 'smooth' }); });
 $$('#cats button').forEach((b) => b.addEventListener('click', () => {
   $$('#cats button').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', String(x === b)); });
   const items = $$('.mitem');
-  items.forEach((it) => { it.hidden = it.dataset.c !== b.dataset.c; });
-  setMore(b.dataset.c);
-  if (!RM) gsap.fromTo(items.filter((i) => !i.hidden), { opacity: 0, y: 14 }, { opacity: 1, y: 0, stagger: .04, duration: .4 });
+  const swap = () => {
+    items.forEach((it) => { it.hidden = it.dataset.c !== b.dataset.c; });
+    setMore(b.dataset.c);
+    if (RM) return;
+    // cup baru masuk: geser dikit + fade; stagger cuma buat 6 item pertama biar ringan di HP
+    const vis = items.filter((i) => !i.hidden);
+    gsap.fromTo(vis, { opacity: 0, x: 18 }, { opacity: 1, x: 0, duration: .4, ease: 'power2.out', stagger: (i) => Math.min(i, 5) * .045, overwrite: true, clearProps: 'transform' });
+  };
+  const old = items.filter((i) => !i.hidden);
+  if (RM || !old.length) return swap();
+  gsap.to(old, { opacity: 0, x: -14, duration: .16, ease: 'power1.in', overwrite: true, onComplete: swap });
 }));
 $$('.mi-add').forEach((a) => a.addEventListener('click', () => { const id = a.dataset.id; const r = $(`#poForm input[value="${id}"]`); if (r) { r.checked = true; $('#poForm').other.value = ''; } else $('#poForm').other.value = id; total(); }));
 if (!RM) ScrollTrigger.batch('.mitem', { start: 'top 92%', once: true, onEnter: (els) => gsap.from(els, { opacity: 0, y: 24, stagger: LITE ? .04 : .06, duration: .55, ease: 'power3.out' }) });
@@ -324,3 +333,11 @@ let unstickT; addEventListener('scroll', () => { clearTimeout(unstickT); unstick
 setTimeout(unstick, 4000);
 
 addEventListener('resize', () => { if (!busy) layout(false); });
+
+/* ---------- micro: ekor Lizzy goyang dikit pas hover/tap ---------- */
+if (!RM) $$('.peek img, .sitter img').forEach((im) => {
+  const wig = () => { im.classList.remove('wiggle'); void im.offsetWidth; im.classList.add('wiggle'); };
+  im.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') wig(); });
+  im.addEventListener('pointerdown', wig, { passive: true });
+  im.addEventListener('animationend', () => im.classList.remove('wiggle'));
+});
