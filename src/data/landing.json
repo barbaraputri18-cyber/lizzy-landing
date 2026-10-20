@@ -164,6 +164,20 @@
   ],
   "promos": [
     {
+      "id": "trio",
+      "type": "lizzy",
+      "anim": "push",
+      "pose": "cat-push",
+      "cup": "cup-butterscotch",
+      "eyebrow": "Paket hemat",
+      "title": "Trio Bestseller, *hemat 7rb*",
+      "desc": "Aren's Meow, Butterscotch Paws, dan Matcha Whiskers dalam satu paket.",
+      "priceOld": 72000,
+      "priceNew": 65000,
+      "cta": "Lihat menu",
+      "href": "#menu"
+    },
+    {
       "id": "b2g1",
       "type": "lizzy",
       "anim": "push",
