@@ -8,8 +8,9 @@ import '@fontsource/inter/600.css';
 import '@fontsource/caveat/500.css';
 import 'leaflet/dist/leaflet.css';
 import '../styles/main.css';
-import data from '../data/landing.json';
+import { getLanding, img, API_BASE } from '../lib/landing.js';
 import PromoSlider from '../components/PromoSlider.astro';
+const data = await getLanding();
 const rp = (n) => 'Rp ' + n.toLocaleString('id-ID').replace(/,/g, '.');
 const t = Object.fromEntries(data.titik.map((x) => [x.id, x]));
 const st = t[data.status.titikId];
@@ -56,7 +57,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
   </div>
   <div class="status card glass rv">
     <span class="dot"></span>
-    <div><small>Lizzy sekarang di</small><b>{st.name}</b><em><span>±{data.status.etaMin} menit dari kamu</span><span>buka s/d {data.status.openUntil}</span></em></div>
+    <div><small>Lizzy sekarang di</small><b data-live="name">{st.name}</b><em><span>±<span data-live="eta">{data.status.etaMin}</span> menit dari kamu</span><span>buka s/d <span data-live="until">{data.status.openUntil}</span></span></em></div>
     <span class="chip">contoh</span>
   </div>
   <picture class="peek swap" data-day={cat('peek').day} data-night={cat('peek').night}><img src={cat('peek').day} alt="Lizzy mengintip" loading="eager" /></picture>
@@ -77,7 +78,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
   <div class="menu-grid"><div class="stage-wrap">
   <div class="stage" id="stage">
     <div class="halo"></div>
-    <div class="cups">{data.menu.map((m, i) => <figure class="cup" data-i={i}><img src={`img/${m.img}.webp`} alt={m.name} draggable="false" /><span class="shadow"></span></figure>)}</div>
+    <div class="cups">{data.menu.map((m, i) => <figure class="cup" data-i={i}><img src={img(m.img)} alt={m.name} draggable="false" /><span class="shadow"></span></figure>)}</div>
     <picture class="pusher swap" data-day={cat('push').day} data-night={cat('push').night}><img src={cat('push').day} alt="" /></picture>
     <picture class="sitter swap" data-day={cat('sit').day} data-night={cat('sit').night}><img src={cat('sit').day} alt="Lizzy duduk di samping kopi" /></picture>
     <button class="nav prev" type="button" aria-label="Sebelumnya">‹</button><button class="nav next" type="button" aria-label="Berikutnya">›</button>
@@ -91,7 +92,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
     <div class="row"><b id="dPrice">{rp(data.menu[0].price)}</b><small>harga contoh</small></div>
     <a href="#preorder" class="btn primary" id="pickBtn">Pilih &amp; Pre-order <span>→</span></a>
   </article>
-  <ul class="mini">{data.menu.map((m, i) => <li><button type="button" data-i={i}><img src={`img/${m.img}.webp`} alt="" loading="lazy" /><span>{m.name}<b>{rp(m.price)}</b></span></button></li>)}</ul>
+  <ul class="mini">{data.menu.map((m, i) => <li><button type="button" data-i={i}><img src={img(m.img)} alt="" loading="lazy" /><span>{m.name}<b>{rp(m.price)}</b></span></button></li>)}</ul>
   </div></div>
 </section>
 
@@ -100,7 +101,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 <section id="menu-lengkap" class="fullmenu">
   <div class="sec-head row-head"><div><p class="eyebrow rv">Menu lengkap <span class="chip">contoh</span></p><h2 class="blur-in">Menu <i>lainnya.</i></h2></div>
   <div class="cats" id="cats"><button type="button" class="on" data-c="all">Semua</button>{[...new Set(data.menuLengkap.map((m) => m.cat))].map((c) => <button type="button" data-c={c}>{c}</button>)}</div></div>
-  <ul class="mgrid">{data.menuLengkap.map((m) => <li class={`mitem card ${m.soldOut ? 'out' : ''}`} data-c={m.cat}>
+  <ul class="mgrid">{data.menuLengkap.map((m) => <li class={`mitem card ${m.soldOut ? 'out' : ''}`} data-c={m.cat} data-id={m.id}>
     <span class="swatch" style={`--t:${m.tone}`}></span>
     <div class="mi-top"><small>{m.cat}</small>{m.signature && <span class="badge sig">Signature</span>}{m.soldOut && <span class="badge so">Habis</span>}</div>
     <b class="mi-name">{m.name}</b><p>{m.desc}</p>
@@ -136,7 +137,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
   <div class="sec-head po-head"><p class="eyebrow rv">Pre-order</p><h2 class="blur-in">Ambil, <i>nikmati.</i></h2><p class="lead rv">Isi sebentar, nanti langsung kebuka WhatsApp dengan pesan yang udah jadi.</p></div>
   <form id="poForm" class="card form" novalidate>
     <fieldset><legend>Pilih minuman</legend>
-      <div class="opts">{data.menu.map((m, i) => <label class="opt"><input type="radio" name="drink" value={m.id} checked={i === 0} /><img src={`img/${m.img}.webp`} alt="" loading="lazy" /><span><b>{m.name}</b><small>{rp(m.price)} · contoh</small></span><i class="ck"></i></label>)}</div>
+      <div class="opts">{data.menu.map((m, i) => <label class="opt"><input type="radio" name="drink" value={m.id} checked={i === 0} /><img src={img(m.img)} alt="" loading="lazy" /><span><b>{m.name}</b><small>{rp(m.price)} · contoh</small></span><i class="ck"></i></label>)}</div>
       <label class="fld other"><span>Atau menu lain</span><select name="other"><option value="">— pakai pilihan di atas —</option>{data.menuLengkap.filter((m) => !m.soldOut && !m.signature).map((m) => <option value={m.id}>{m.name} · {rp(m.price)}</option>)}</select></label>
     </fieldset>
     <div class="grid2">
@@ -159,7 +160,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 
 <section class="quote" id="quote">
   <div class="q-card">
-    <div class="q-cups" aria-hidden="true">{data.menu.map((m) => <img src={`img/${m.img}.webp`} alt="" loading="lazy" />)}</div>
+    <div class="q-cups" aria-hidden="true">{data.menu.map((m) => <img src={img(m.img)} alt="" loading="lazy" />)}</div>
     <div class="q-body">
       <img class="qmark" src="img/logo.webp" alt="" width="44" height="44" />
       <p class="typed" id="typed" data-text={data.quote} aria-label={data.quote}></p>
@@ -208,6 +209,8 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
   </div>
 </div>
 <script>import '../scripts/main.js';</script>
+<script is:inline define:vars={{ LZ_API: API_BASE }}>window.LZ_API = LZ_API;</script>
+<script>import '../scripts/live.js';</script>
 <script type="application/json" id="landing-data" set:html={JSON.stringify(data)}></script>
 </body>
 </html>

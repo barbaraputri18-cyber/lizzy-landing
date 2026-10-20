@@ -1,5 +1,6 @@
 ---
-import data from '../data/landing.json';
+import { getLanding, img } from '../lib/landing.js';
+const data = await getLanding();
 const D = data as any;
 // location promos are data-driven: title/label/hours come from titik + jadwal
 const promos = (D.promos ?? []).map((p: any) => {
@@ -14,7 +15,7 @@ const promos = (D.promos ?? []).map((p: any) => {
 const md = (s = '') => s.replace(/\*(.+?)\*/g, '<i>$1</i>');
 const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
 ---
-<section class="pslider" id="promo" aria-roledescription="carousel" aria-label="Promo Lizzy Coffee">
+{promos.length > 0 && <section class="pslider" id="promo" aria-roledescription="carousel" aria-label="Promo Lizzy Coffee">
   <div class="ps-viewport">
     {promos.map((p: any, i: number) => (
       <div class={`ps-slide ps-${p.type} ${p.anim ? 'a-' + p.anim : ''}`} data-slide={i} role="group" aria-roledescription="slide" aria-label={`${i + 1} dari ${promos.length}`} aria-hidden={i ? 'true' : 'false'}>
@@ -47,7 +48,7 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
                   <svg class="ps-pin" viewBox="0 0 24 32"><path d="M12 0C5.4 0 0 5.2 0 11.7 0 20.5 12 32 12 32s12-11.5 12-20.3C24 5.2 18.6 0 12 0z"/><circle cx="12" cy="11.5" r="4.5"/></svg>
                 </div>
               )}
-              {p.cup && <img class="ps-cup" src={`img/${p.cup}.webp`} alt="" />}
+              {p.cup && <img class="ps-cup" src={img(p.cup)} alt="" />}
               <div class="ps-actor">
                 <img class={`ps-cat cat ${p.anim === 'peek' ? 'ps-body' : ''}`} src={`img/${p.pose}.webp`} data-day={`img/${p.pose}.webp`} data-night={`img/${p.pose}-n.webp`} alt="Ilustrasi Lizzy" />
                 {p.anim === 'peek' && <img class="ps-tail cat" src={`img/${p.pose}.webp`} data-day={`img/${p.pose}.webp`} data-night={`img/${p.pose}-n.webp`} alt="" aria-hidden="true" />}
@@ -64,7 +65,7 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
     <button class="ps-arrow" data-next aria-label="Promo berikutnya"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
   <div class="ps-progress" aria-hidden="true"><span></span></div>
-</section>
+</section>}
 
 <style>
 .pslider{position:relative;width:100%;background:linear-gradient(180deg,var(--bg),var(--bg2));border-block:1px solid var(--line);overflow:hidden}
