@@ -164,16 +164,16 @@
   ],
   "promos": [
     {
-      "id": "b2g1",
+      "id": "trio",
       "type": "lizzy",
       "anim": "push",
       "pose": "cat-push",
       "cup": "cup-aren",
-      "eyebrow": "Promo minggu ini",
-      "title": "Beli 2, *Gratis 1*",
-      "desc": "Kopi Susu Gula Aren, Senin sampai Jumat.",
-      "priceOld": 66000,
-      "priceNew": 44000,
+      "eyebrow": "Paket hemat",
+      "title": "Trio *Bestseller*",
+      "desc": "Aren's Meow, Butterscotch Paws, dan Matcha Whiskers dalam satu paket.",
+      "priceOld": 72000,
+      "priceNew": 65000,
       "cta": "Pesan sekarang",
       "href": "#preorder"
     },
