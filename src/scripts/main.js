@@ -163,24 +163,19 @@ function go(dir, to) {
   const from = dir === 1 ? 1 : -1; // incoming is on the right (1) or left (-1)
   gsap.set(pusher, { scaleX: from === 1 ? -1 : 1, left: from === 1 ? 'auto' : -200, right: from === 1 ? -200 : 'auto', x: 0 });
   const img = pusher.querySelector('img');
-  const step = gsap.timeline({ repeat: -1, paused: true })
-    .to(img, { y: -9, rotate: from * -3, duration: .17, ease: 'sine.out' })
-    .to(img, { y: 0, rotate: from * 1.5, duration: .17, ease: 'sine.in' })
-    .to(img, { y: -6, rotate: from * 3, duration: .17, ease: 'sine.out' })
-    .to(img, { y: 0, rotate: 0, duration: .17, ease: 'sine.in' });
-  const tl = gsap.timeline({ onComplete: () => { step.kill(); gsap.set(img, { y: 0, rotate: 0 }); busy = false; } });
+  // tanpa step cycle: Lizzy meluncur mulus (satu tween transform per fase)
+  const step = null;
+  const tl = gsap.timeline({ defaults: { force3D: true }, onComplete: () => { gsap.set(img, { y: 0, rotate: 0 }); busy = false; } });
   curTl = tl; curStep = step;
   gsap.set(pusher, { x: from * x0, opacity: 0 });
   tl.to(sitter, { opacity: 0, y: 14, scale: .92, duration: .25 })
     .to(pusher, { opacity: 1, duration: .2 }, '<')
-    .add(() => step.play(), '<')
     // walk in to the incoming (side) cup
-    .to(pusher, { x: -from * d1, duration: .5, ease: 'none' }, '<')
-    // push: cup and cat travel together to center
-    .to(pusher, { x: -from * d2, duration: .6, ease: 'power1.inOut' })
-    .add(() => cups.forEach((c, k) => gsap.to(c, { ...P[pos(k)], duration: .6, ease: 'power1.inOut', ...(c === incoming ? { keyframes: { rotate: [P[pos(k)].rotate, -from * 7, from * 2, 0], ease: 'none' } } : {}) })), '<')
+    // walk + push jadi satu tween kontinu (tanpa jeda di titik sentuh)
+    .to(pusher, { x: -from * d2, duration: 1.1, ease: 'power2.inOut' }, '<')
+    .add(() => cups.forEach((c, k) => gsap.to(c, { ...P[pos(k)], duration: .6, ease: 'power2.out', force3D: true })), '<.5')
     // settle: walking pose fades into sitting pose next to the cup
-    .add(() => { step.pause(); gsap.to(img, { y: 0, rotate: 0, duration: .2 }); placeSitter(from); })
+    .add(() => placeSitter(from))
     .to(pusher, { opacity: 0, scale: .9, y: 6, duration: .25, ease: 'power2.in' })
     .fromTo(sitter, { opacity: 0, y: 10, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .3, ease: 'back.out(1.8)' }, '<.05')
     .set(pusher, { opacity: 1, x: 0, scale: 1, y: 0 });
@@ -298,11 +293,11 @@ $('#ovClose').addEventListener('click', () => { $('#overlay').hidden = true; });
 
 /* ---------- quote typing ---------- */
 function typing() {
-  const el = $('#typed'), t = el.dataset.text;
-  if (RM) { el.textContent = t; el.classList.add('done'); return; }
-  ScrollTrigger.create({ trigger: el, start: 'top 80%', once: true, onEnter: () => {
-    let i = 0; const id = setInterval(() => { el.textContent = t.slice(0, ++i); if (i >= t.length) { clearInterval(id); el.classList.add('done'); } }, 42);
-  } });
+  // teks quote sudah ada di HTML (selalu kebaca); animasi cuma nambah fade
+  const el = $('#typed'); if (!el) return;
+  el.classList.add('done');
+  if (RM) return;
+  gsap.from(el, { opacity: 0, y: 12, duration: .8, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 95%', once: true } });
   gsap.from('.lier', { x: 60, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.closing', start: 'top 85%', once: true } });
   gsap.from('.jumper-q', { y: 40, opacity: 0, duration: .8, ease: 'back.out(2)', scrollTrigger: { trigger: '.quote', start: 'top 85%', once: true } });
 }
@@ -312,7 +307,7 @@ intro(() => { reveals(); pour(); typing(); ScrollTrigger.refresh(); });
 /* ---------- reveal safety net ----------
    Konten nggak boleh nyangkut di opacity 0 (Android Chrome: fast scroll / layout geser setelah gambar & Leaflet load).
    1) refresh posisi trigger setelah semua aset load, 2) elemen yang sudah lewat/ada di layar tapi masih transparan dipaksa tampil. */
-const REVEAL_SEL = '.blur-in .w, .rv, .mitem, .lier, .jumper-q, .logo img';
+const REVEAL_SEL = '.blur-in .w, .rv, .mitem, .lier, .jumper-q, .logo img, #typed';
 function unstick() {
   const vh = innerHeight;
   $$(REVEAL_SEL).forEach((el) => {

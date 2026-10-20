@@ -37,7 +37,7 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
               <p class="eyebrow">{p.eyebrow}</p>
               <h2 set:html={md(p.title)} />
               <p class="lead">{p.desc}</p>
-              {p.priceOld && <p class="ps-price"><s><span>{rp(p.priceOld)}</span><i class="ps-strike" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none"><path class="cl1" d="M4 30 C30 22 62 14 96 6"/><path class="cl2" d="M2 38 C32 29 64 20 98 13"/><path class="cl3" d="M8 46 C36 37 66 28 94 21"/></svg></i></s><b>{rp(p.priceNew)}</b></p>}
+              {p.priceOld && <p class="ps-price"><s><span>{rp(p.priceOld)}</span><i class="ps-strike" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none"><path class="cl1" d="M6 24 Q42 21 90 4 Q46 13 6 24Z"/><path class="cl2" d="M2 32 Q48 29 97 10 Q51 20 2 32Z"/><path class="cl3" d="M11 39 Q49 36 91 19 Q53 28.5 11 39Z"/></svg></i></s><b>{rp(p.priceNew)}</b></p>}
               {p.cta && p.href && !(p.href === '#preorder' && !wa) && <a class="btn primary" href={p.href} {...(p.external ? { target: '_blank', rel: 'noopener' } : {})}>{p.cta}</a>}
             </div>
             <div class="ps-stage">
@@ -84,13 +84,14 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
 .ps-copy .btn{justify-self:start}
 .ps-price{display:flex;gap:14px;align-items:baseline;font-family:var(--serif)}
 .ps-price s{position:relative;color:var(--ink2);font-size:20px;text-decoration:none}
-.ps-price{--claw:#7a4a2b}
-:global([data-theme=night]) .ps-price{--claw:#c08a5a}
+.ps-price{--claw:#6b3f22}
+:global([data-theme=night]) .ps-price{--claw:#d2a273}
 /* harga coret = bekas cakaran Lizzy: 3 goresan cokelat kopi */
-.ps-strike{position:absolute;left:-6%;right:-6%;top:-6%;bottom:-18%;pointer-events:none}
+.ps-strike{position:absolute;left:-4%;right:-4%;top:-28%;bottom:-6%;pointer-events:none}
 .ps-strike svg{display:block;width:100%;height:100%;overflow:visible}
-.ps-strike path{fill:none;stroke:var(--claw);stroke-width:3.2;stroke-linecap:round;vector-effect:non-scaling-stroke;transform-box:fill-box;transform-origin:0 50%}
-.ps-strike .cl2{stroke-width:3.6}
+.ps-strike path{fill:var(--claw);stroke:none;opacity:.7;transform-box:fill-box;transform-origin:0 100%}
+/* goresan sengaja nggak seragam: tebal/arah beda dikit */
+.ps-strike .cl1{opacity:.6}.ps-strike .cl3{opacity:.55}
 .ps-price b{font-weight:600;font-size:clamp(26px,2.6vw,36px);color:var(--ink)}
 .ps-stage{position:relative;height:100%;min-height:0}
 .ps-stage::before{content:'';position:absolute;left:8%;right:8%;bottom:6%;height:14px;border-radius:50%;background:radial-gradient(rgba(58,34,25,.22),transparent 70%)}
@@ -206,28 +207,24 @@ if (root) {
     if (s.classList.contains('a-push')) {
       const stage = q('.ps-stage') as HTMLElement, cup = q('.ps-cup') as HTMLElement;
       const W = stage.clientWidth;
-      gsap.set(cup, { x: -W * .32, rotate: -4, force3D: true });
+      gsap.set(cup, { x: -W * .32, rotate: 0, force3D: true });
       // layer GPU cuma selama dorong, dilepas lagi sesudahnya
-      const movers = [actor, cat, cup].filter(Boolean) as Element[];
+      const movers = [actor, cup].filter(Boolean) as Element[];
       movers.forEach((m) => m.classList.add('is-anim'));
       t.eventCallback('onComplete', () => movers.forEach((m) => m.classList.remove('is-anim')));
-      // walk in with step cycle (HP: langkah lebih sedikit, tanpa rotate)
-      const step = lite
-        ? gsap.timeline({ repeat: 3 }).to(cat, { y: -10, duration: .32, ease: 'sine.out' }).to(cat, { y: 0, duration: .32, ease: 'sine.in' })
-        : gsap.timeline({ repeat: 7 }).to(cat, { y: -12, rotate: -3, duration: .16, ease: 'sine.out' }).to(cat, { y: 0, rotate: 1.5, duration: .16, ease: 'sine.in' });
-      t.fromTo(actor, { x: -W * .75, opacity: 0 }, { x: -W * .3, opacity: 1, duration: 1.0, ease: 'none' }, 0)
-       .add(step, 0)
-       // push: cat and cup travel together
-       .to(actor, { x: 0, duration: 1.2, ease: 'power1.inOut' }, 1.0)
-       .to(cup, lite ? { x: 0, rotate: 0, duration: 1.2, ease: 'power1.inOut' } : { x: 0, duration: 1.2, ease: 'power1.inOut', keyframes: { rotate: [-4, 7, -3, 0], ease: 'none' } }, 1.0)
-       .to(cat, { y: 0, rotate: 0, duration: .2 }, 2.6)
+      // satu gerakan kontinu: satu tween (translate3d via force3D) untuk Lizzy, cup ikut dari titik sentuh.
+      // W dibaca sekali di atas; per frame cuma set transform (tanpa baca layout, tanpa langkah/step).
+      const setCup = gsap.quickSetter(cup, 'x', 'px') as (v: number) => void;
+      const ax0 = -W * .75, touch = -W * .3, cx0 = -W * .32;
+      t.fromTo(actor, { x: ax0, opacity: 0 }, { x: 0, opacity: 1, duration: 2.4, ease: 'power2.inOut', force3D: true,
+         onUpdate() { const ax = gsap.getProperty(actor, 'x') as number; setCup(ax < touch ? cx0 : cx0 * (ax / touch)); } }, 0)
        // price strike
        .fromTo(q('.ps-price s'), { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: .4 }, .6)
        // cakaran: 3 goresan muncul berurutan (scaleX + opacity)
        .fromTo(s.querySelectorAll('.ps-strike path'), { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: .22, stagger: .09, ease: 'power3.out' }, 2.3)
-       .to(q('.ps-price s span'), { opacity: .55, duration: .3 }, 2.5)
+       .to(q('.ps-price s span'), { opacity: .75, duration: .3 }, 2.5)
        .fromTo(q('.ps-price b'), { opacity: 0, scale: .6, y: 8 }, { opacity: 1, scale: 1, y: 0, duration: .55, ease: 'back.out(2.4)' }, 2.6)
-       .to(cup, { y: -10, duration: .25, yoyo: true, repeat: 1, ease: 'power2.out' }, 2.7);
+       .to(cup, { y: -6, duration: .35, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 2.45);
     } else if (s.classList.contains('a-peek')) {
       const tail = q('.ps-tail');
       t.fromTo(actor, { xPercent: 80, rotate: 8 }, { xPercent: 0, rotate: 0, duration: 1.1, ease: 'power3.out' }, .1)
@@ -246,6 +243,9 @@ if (root) {
        .fromTo(q('.ps-corner'), { xPercent: 100 }, { xPercent: 0, duration: .8, ease: 'power3.out' }, .6);
     }
     t.add(() => startIdle(s));
+    // tunggu gambar slide ke-decode dulu biar frame pertama nggak patah
+    const imgs = [...s.querySelectorAll<HTMLImageElement>('img')];
+    if (imgs.some((im) => !im.complete)) { t.pause(); Promise.all(imgs.map((im) => im.decode().catch(() => {}))).then(() => { if (tl === t) t.play(); }); }
     return t;
   };
   const startIdle = (s: HTMLElement) => {

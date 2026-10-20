@@ -242,7 +242,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
     <div class="q-cups" aria-hidden="true">{data.menu.map((m) => <img src={img(m.img)} alt="" loading="lazy" />)}</div>
     <div class="q-body">
       <img class="qmark" src="img/logo.webp" alt="" width="44" height="44" />
-      <p class="typed" id="typed" data-text={data.quote} aria-label={data.quote}></p>
+      <p class="typed done" id="typed">{data.quote}</p>
       <span class="qline" aria-hidden="true"></span>
     </div>
     <picture class="jumper-q swap" data-day={cat('jump').day} data-night={cat('jump').night}><img src={cat('jump').day} alt="" loading="lazy" /></picture>
