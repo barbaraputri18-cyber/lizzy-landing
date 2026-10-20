@@ -29,7 +29,7 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
           <a class="ps-full" href={p.href || '#'}>
             <img class="ps-bg" src={p.src} alt={p.alt || p.title} />
             <span class="ps-cap"><small>{p.eyebrow || 'Banner promo'}</small><b>{p.title}</b></span>
-            {p.peek && <img class="ps-corner cat" src="img/cat-peek.webp" data-day="img/cat-peek.webp" data-night="img/cat-peek-n.webp" alt="" />}
+            {p.peek && <img class="ps-corner cat" src="img/cat-peek.webp" data-day="img/cat-peek.webp" data-night="img/cat-peek.webp" alt="" />}
           </a>
         ) : (
           <div class="ps-inner">
@@ -55,8 +55,8 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
               )}
               {p.cups ? <div class="ps-cup ps-cups">{p.cups.map((c: string) => <img src={img(c)} alt="" />)}</div> : p.cup && <img class="ps-cup" src={img(p.cup)} alt="" />}
               <div class="ps-actor">
-                <img class={`ps-cat cat ${p.anim === 'peek' ? 'ps-body' : ''}`} src={`img/${p.pose}.webp`} data-day={`img/${p.pose}.webp`} data-night={`img/${p.pose}-n.webp`} alt="Ilustrasi Lizzy" />
-                {p.anim === 'peek' && <img class="ps-tail cat" src={`img/${p.pose}.webp`} data-day={`img/${p.pose}.webp`} data-night={`img/${p.pose}-n.webp`} alt="" aria-hidden="true" />}
+                <img class={`ps-cat cat ${p.anim === 'peek' ? 'ps-body' : ''}`} src={`img/${p.pose}.webp`} data-day={`img/${p.pose}.webp`} data-night={`img/${p.pose}.webp`} alt="Ilustrasi Lizzy" />
+                {p.anim === 'peek' && <img class="ps-tail cat" src={`img/${p.pose}.webp`} data-day={`img/${p.pose}.webp`} data-night={`img/${p.pose}.webp`} alt="" aria-hidden="true" />}
               </div>
             </div>
           </div>

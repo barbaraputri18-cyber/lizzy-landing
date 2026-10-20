@@ -69,7 +69,8 @@ const ld = {
     })),
   },
 };
-const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night: `img/cat-${pose}-n.webp`, cls, alt });
+// Lizzy furry yang sama di siang & malam: file *-n.webp itu line-art semi-transparan (alpha ~38%), jadi tembus pandang di bg gelap.
+const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night: `img/cat-${pose}.webp`, cls, alt });
 ---
 <!doctype html>
 <html lang="id">
