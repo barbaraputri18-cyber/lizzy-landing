@@ -18,10 +18,13 @@ const st = t[data.status?.titikId] ?? data.titik[0];
 const jadwal = data.jadwal.filter((j) => t[j.titikId]);
 const hasLoc = !!st;
 const hasEta = data.status?.etaMin != null && data.status?.etaMin !== '';
-const waLink = `https://wa.me/${data.brand.waNumber}`;
+const waNum = String(data.brand?.waNumber ?? '').replace(/\D/g, '');
+const hasWa = waNum.length >= 8;
+const waLink = hasWa ? `https://wa.me/${waNum}` : '';
 const ig = socials.find((x) => /instagram/i.test(x.label + x.url));
+const soonSub = hasWa && ig ? 'Cek WhatsApp atau Instagram buat lokasi hari ini.' : hasWa ? 'Cek WhatsApp buat lokasi hari ini.' : ig ? 'Cek Instagram buat lokasi hari ini.' : 'Pantau halaman ini ya, lokasi segera diumumkan.';
 const site = 'https://lizzy.my.id/';
-const desc = `Lizzy Coffee, kopi keliling di Tangerang Selatan (Tangsel). Kopi susu gula aren, matcha latte, butterscotch latte mulai ${rp(Math.min(...data.menuLengkap.map((m) => m.price)))}. Pre-order lewat WhatsApp, ambil tanpa antre.`;
+const desc = `Lizzy Coffee, kopi keliling di Tangerang Selatan (Tangsel). Kopi susu gula aren, matcha latte, butterscotch latte mulai ${rp(Math.min(...data.menuLengkap.map((m) => m.price)))}. ${hasWa ? 'Pre-order lewat WhatsApp, ambil tanpa antre.' : 'Dibikin pas kamu pesan.'}`;
 const ld = {
   '@context': 'https://schema.org',
   '@type': 'CafeOrCoffeeShop',
@@ -31,15 +34,15 @@ const ld = {
   url: site,
   image: site + 'og.jpg',
   logo: site + 'img/logo.webp',
-  telephone: '+' + data.brand.waNumber,
+  ...(hasWa ? { telephone: '+' + waNum } : {}),
   priceRange: 'Rp',
   servesCuisine: ['Kopi', 'Minuman'],
   paymentAccepted: data.brand.payments.join(', '),
   currenciesAccepted: 'IDR',
   address: { '@type': 'PostalAddress', addressLocality: 'Tangerang Selatan', addressRegion: 'Banten', addressCountry: 'ID' },
   areaServed: [{ '@type': 'City', name: 'Tangerang Selatan' }],
-  sameAs: socials.map((x) => x.url),
-  potentialAction: { '@type': 'OrderAction', target: `https://wa.me/${data.brand.waNumber}` },
+  ...(socials.length ? { sameAs: socials.map((x) => x.url) } : {}),
+  ...(hasWa ? { potentialAction: { '@type': 'OrderAction', target: waLink } } : {}),
   hasMenu: {
     '@type': 'Menu',
     hasMenuSection: [...new Set(data.menuLengkap.map((m) => m.cat))].map((c) => ({
@@ -55,7 +58,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Lizzy Coffee — Kopi Keliling Tangerang Selatan, Pre-order via WA</title>
+<title>{hasWa ? 'Lizzy Coffee — Kopi Keliling Tangerang Selatan, Pre-order via WA' : 'Lizzy Coffee — Kopi Keliling Tangerang Selatan'}</title>
 <meta name="description" content={desc} />
 <link rel="canonical" href={site} />
 <meta name="robots" content="index, follow, max-image-preview:large" />
@@ -105,22 +108,21 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 <section id="hero" class="hero">
   <div class={`hero-visual${hasLoc ? '' : ' no-loc'}`}>
   {hasLoc ? <>
-  <div class="map" id="map" role="region" aria-label="Peta lokasi Lizzy (contoh)">
+  <div class="map" id="map" role="region" aria-label="Peta lokasi Lizzy">
     <div class="map-fallback"></div>
   </div>
   <div class="status card glass rv">
     <span class="dot"></span>
     <div><small data-live-lbl>{hasEta ? 'Lizzy sekarang di' : 'Lagi di'}</small><b data-live="name">{st?.name}</b><em><span data-eta-wrap hidden={!hasEta}>±<span data-live="eta">{data.status?.etaMin}</span> menit dari kamu</span><span><span data-until-lbl>{hasEta ? 'buka s/d' : 'buka sampai jam'}</span> <span data-live="until">{data.status?.openUntil}</span></span></em></div>
-    <span class="chip">contoh</span>
   </div>
-  </> : <div class="card soon rv"><span class="soon-ic" aria-hidden="true"><img src="img/logo.webp" alt="" width="44" height="44" /></span><p class="eyebrow">Lokasi hari ini</p><h3>Jadwal <i>segera diumumkan</i></h3><p class="lead">Cek WhatsApp atau Instagram buat lokasi hari ini.</p><div class="soon-cta"><a href={waLink} target="_blank" rel="noopener" class="btn wa">Tanya via WhatsApp <span>→</span></a>{ig && <a href={ig.url} target="_blank" rel="noopener" class="btn ghost">Instagram</a>}</div></div>}
+  </> : <div class="card soon rv"><span class="soon-ic" aria-hidden="true"><img src="img/logo.webp" alt="" width="44" height="44" /></span><p class="eyebrow">Lokasi hari ini</p><h3>Jadwal <i>segera diumumkan</i></h3><p class="lead">{soonSub}</p>{(hasWa || ig) && <div class="soon-cta">{hasWa && <a href={waLink} target="_blank" rel="noopener" class="btn wa">Tanya via WhatsApp <span>→</span></a>}{ig && <a href={ig.url} target="_blank" rel="noopener" class="btn ghost">Instagram</a>}</div>}</div>}
   <picture class="peek swap" data-day={cat('peek').day} data-night={cat('peek').night}><img src={cat('peek').day} alt="Lizzy mengintip" loading="eager" /></picture>
   </div>
   <div class="hero-copy">
-    <p class="eyebrow rv">Kopi keliling Tangsel · pre-order lewat WA</p>
+    <p class="eyebrow rv">Kopi keliling Tangsel{hasWa && ' · pre-order lewat WA'}</p>
     <h1 class="blur-in">Kopi enak,<br/><i>di dekatmu.</i></h1>
     <p class="lead rv">Pesan dulu, ambil tanpa antre. Kopi lebih segar, kamu lebih hemat waktu.</p>
-    <div class="cta-row rv"><a href="#preorder" class="btn primary">Pre-order <span>→</span></a><a href="#jadwal" class="btn ghost">Lihat jadwal</a></div>
+    <div class="cta-row rv">{hasWa ? <a href="#preorder" class="btn primary">Pre-order <span>→</span></a> : <a href="#menu-lengkap" class="btn primary">Lihat menu <span>→</span></a>}<a href="#jadwal" class="btn ghost">Lihat jadwal</a></div>
     <ul class="perks rv"><li><b>±5'</b><span>siap ambil</span></li>{data.titik.length > 0 && <li><b>{data.titik.length}</b><span>titik mangkal</span></li>}<li><b>Tunai</b><span>&amp; QRIS</span></li></ul>
   </div>
 </section>
@@ -143,8 +145,8 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
     <span class="tag" id="dTag">{data.menu[0].tag}</span>
     <h3 id="dName">{data.menu[0].name}</h3>
     <p id="dDesc">{data.menu[0].desc}</p>
-    <div class="row"><b id="dPrice">{rp(data.menu[0].price)}</b><small>harga contoh</small></div>
-    <a href="#preorder" class="btn primary" id="pickBtn">Pilih &amp; Pre-order <span>→</span></a>
+    <div class="row"><b id="dPrice">{rp(data.menu[0].price)}</b></div>
+    {hasWa && <a href="#preorder" class="btn primary" id="pickBtn">Pilih &amp; Pre-order <span>→</span></a>}
   </article>
   <ul class="mini">{data.menu.map((m, i) => <li><button type="button" data-i={i}><img src={img(m.img)} alt="" loading="lazy" /><span>{m.name}<b>{rp(m.price)}</b></span></button></li>)}</ul>
   </div></div>
@@ -153,13 +155,13 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 <!-- 4. Pour moment -->
 
 <section id="menu-lengkap" class="fullmenu">
-  <div class="sec-head row-head"><div><p class="eyebrow rv">Menu lengkap <span class="chip">contoh</span></p><h2 class="blur-in">Menu <i>lainnya.</i></h2></div>
+  <div class="sec-head row-head"><div><p class="eyebrow rv">Menu lengkap</p><h2 class="blur-in">Menu <i>lainnya.</i></h2></div>
   <div class="cats" id="cats"><button type="button" class="on" data-c="all">Semua</button>{[...new Set(data.menuLengkap.map((m) => m.cat))].map((c) => <button type="button" data-c={c}>{c}</button>)}</div></div>
   <ul class="mgrid">{data.menuLengkap.map((m) => <li class={`mitem card ${m.soldOut ? 'out' : ''}`} data-c={m.cat} data-id={m.id}>
     <span class="swatch" style={`--t:${m.tone}`}></span>
     <div class="mi-top"><small>{m.cat}</small>{m.signature && <span class="badge sig">Signature</span>}{m.soldOut && <span class="badge so">Habis</span>}</div>
     <b class="mi-name">{m.name}</b><p>{m.desc}</p>
-    <div class="mi-foot"><span class="mi-price">{rp(m.price)}</span>{m.soldOut ? <span class="mi-na">Besok lagi ya</span> : <a href="#preorder" class="mi-add" data-id={m.id}>Pesan +</a>}</div>
+    <div class="mi-foot"><span class="mi-price">{rp(m.price)}</span>{m.soldOut ? <span class="mi-na">Besok lagi ya</span> : hasWa && <a href="#preorder" class="mi-add" data-id={m.id}>Pesan +</a>}</div>
   </li>)}</ul>
 </section>
 
@@ -188,10 +190,10 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 
 <!-- 5. Pre-order -->
 <section id="preorder" class="preorder">
-  <div class="sec-head po-head"><p class="eyebrow rv">Pre-order</p><h2 class="blur-in">Ambil, <i>nikmati.</i></h2><p class="lead rv">Isi sebentar, nanti langsung kebuka WhatsApp dengan pesan yang udah jadi.</p></div>
-  <form id="poForm" class="card form" novalidate>
+  <div class="sec-head po-head"><p class="eyebrow rv">Pre-order</p><h2 class="blur-in">Ambil, <i>nikmati.</i></h2><p class="lead rv">{hasWa ? 'Isi sebentar, nanti langsung kebuka WhatsApp dengan pesan yang udah jadi.' : 'Sebentar lagi kamu bisa pesan duluan dari sini.'}</p></div>
+  {hasWa ? <form id="poForm" class="card form" novalidate>
     <fieldset><legend>Pilih minuman</legend>
-      <div class="opts">{data.menu.map((m, i) => <label class="opt"><input type="radio" name="drink" value={m.id} checked={i === 0} /><img src={img(m.img)} alt="" loading="lazy" /><span><b>{m.name}</b><small>{rp(m.price)} · contoh</small></span><i class="ck"></i></label>)}</div>
+      <div class="opts">{data.menu.map((m, i) => <label class="opt"><input type="radio" name="drink" value={m.id} checked={i === 0} /><img src={img(m.img)} alt="" loading="lazy" /><span><b>{m.name}</b><small>{rp(m.price)}</small></span><i class="ck"></i></label>)}</div>
       <label class="fld other"><span>Atau menu lain</span><select name="other"><option value="">— pakai pilihan di atas —</option>{data.menuLengkap.filter((m) => !m.soldOut && !m.signature).map((m) => <option value={m.id}>{m.name} · {rp(m.price)}</option>)}</select></label>
     </fieldset>
     <div class="grid2">
@@ -200,16 +202,16 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
     </div>
     <label class="fld"><span>Titik ambil</span><select name="titik">{hasLoc ? data.titik.map((x) => <option value={x.id}>{x.name}</option>) : <option value="">Lokasi dikabari via WA</option>}</select></label>
     <label class="fld"><span>Nama kamu</span><input name="nama" type="text" placeholder="mis. Rani" autocomplete="given-name" required /></label>
-    <div class="total"><span>Total <small>(contoh)</small></span><b id="total">{rp(data.menu[0].price)}</b></div>
+    <div class="total"><span>Total</span><b id="total">{rp(data.menu[0].price)}</b></div>
     <button class="btn wa" type="submit"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2s-1 .3-3.4-.7a11.7 11.7 0 0 1-4.6-4.1c-.4-.6-1-1.7-1-3.2 0-1.5.8-2.2 1-2.5.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.5c-.2.2-.3.4-.1.7.2.4.9 1.5 2 2.4 1.3 1.1 2.4 1.5 2.8 1.6.3.2.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.6.3.1.2.1.8-.1 1.3Z"/></svg> Pesan via WhatsApp <span>→</span></button>
-    <p class="fine">Nomor WA masih contoh. Bayar di tempat: Tunai atau QRIS.</p>
-  </form>
+    <p class="fine">Bayar di tempat: Tunai atau QRIS.</p>
+  </form> : <div class="card soon rv"><span class="soon-ic" aria-hidden="true"><img src="img/logo.webp" alt="" width="44" height="44" /></span><p class="eyebrow">Pre-order</p><h3>Pre-order <i>segera dibuka</i></h3><p class="lead">Untuk sekarang, langsung datang ke Lizzy ya. Bayar di tempat: Tunai atau QRIS.</p></div>}
 </section>
 
 <!-- 6. Jadwal -->
 <section id="jadwal" class="jadwal">
-  <div class="sec-head"><p class="eyebrow rv">Jadwal mangkal <span class="chip">contoh</span></p><h2 class="blur-in">Cari Lizzy <i>di sini.</i></h2></div>
-  {jadwal.length ? <ol class="spots">{jadwal.map((j, i) => <li class="card spot rv"><span class="num">{i + 1}</span><div><b>{t[j.titikId].name}</b><small>{t[j.titikId].address}</small></div><div class="when"><b>{j.days}</b><small>{j.time}</small></div></li>)}</ol> : <div class="card soon rv"><span class="soon-ic" aria-hidden="true"><img src="img/logo.webp" alt="" width="44" height="44" /></span><p class="eyebrow">Lokasi hari ini</p><h3>Jadwal <i>segera diumumkan</i></h3><p class="lead">Cek WhatsApp atau Instagram buat lokasi hari ini.</p><div class="soon-cta"><a href={waLink} target="_blank" rel="noopener" class="btn wa">Tanya via WhatsApp <span>→</span></a>{ig && <a href={ig.url} target="_blank" rel="noopener" class="btn ghost">Instagram</a>}</div></div>}
+  <div class="sec-head"><p class="eyebrow rv">Jadwal mangkal</p><h2 class="blur-in">Cari Lizzy <i>di sini.</i></h2></div>
+  {jadwal.length ? <ol class="spots">{jadwal.map((j, i) => <li class="card spot rv"><span class="num">{i + 1}</span><div><b>{t[j.titikId].name}</b><small>{t[j.titikId].address}</small></div><div class="when"><b>{j.days}</b><small>{j.time}</small></div></li>)}</ol> : <div class="card soon rv"><span class="soon-ic" aria-hidden="true"><img src="img/logo.webp" alt="" width="44" height="44" /></span><p class="eyebrow">Lokasi hari ini</p><h3>Jadwal <i>segera diumumkan</i></h3><p class="lead">{soonSub}</p>{(hasWa || ig) && <div class="soon-cta">{hasWa && <a href={waLink} target="_blank" rel="noopener" class="btn wa">Tanya via WhatsApp <span>→</span></a>}{ig && <a href={ig.url} target="_blank" rel="noopener" class="btn ghost">Instagram</a>}</div>}</div>}
 </section>
 
 <section class="quote" id="quote">
@@ -235,8 +237,8 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
       <h2 class="blur-in">Sampai ketemu <i>di titik berikutnya.</i></h2>
       <p class="lead">Pesan dari sekarang, kopimu udah siap pas kamu sampai. Lewat jalur khusus, tanpa antre.</p>
       {jadwal.length > 0 && <ul class="c-next">{jadwal.map((j, i) => <li class={i === 0 ? 'now' : ''}><span class="cdot"></span><b>{t[j.titikId].name}</b><small>{j.days} · {j.time}</small>{i === 0 && <em>hari ini</em>}</li>)}</ul>}
-      <div class="c-cta"><a href="#preorder" class="btn primary">Pre-order sekarang <span>→</span></a><a href={waLink} target="_blank" rel="noopener" class="btn ghost">Chat WhatsApp</a></div>
-      <div class="c-soc">{socials.map((x) => <a href={x.url} target="_blank" rel="noopener">{x.label}</a>)}<span>contoh · jadwal bisa berubah</span></div>
+      {hasWa ? <div class="c-cta"><a href="#preorder" class="btn primary">Pre-order sekarang <span>→</span></a><a href={waLink} target="_blank" rel="noopener" class="btn ghost">Chat WhatsApp</a></div> : <p class="soon-note">Pre-order segera dibuka</p>}
+      <div class="c-soc">{socials.map((x) => <a href={x.url} target="_blank" rel="noopener">{x.label}</a>)}<span>jadwal bisa berubah</span></div>
     </div>
   </div>
 </section>
@@ -246,10 +248,10 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
   <div class="f-grid">
     <div class="f-brand"><img src="img/logo.webp" alt="Lizzy Coffee" width="56" height="56" class="flogo" /><div><b>LIZZY COFFEE</b><p>Kopi keliling yang dibikin pas kamu pesan. Tangerang Selatan.</p></div></div>
     <nav class="f-col"><b>Jelajah</b><a href="#menu">Signature</a><a href="#menu-lengkap">Menu lengkap</a><a href="#jadwal">Jadwal mangkal</a><a href="#preorder">Pre-order</a></nav>
-    <div class="f-col"><b>Kontak</b><a href={`https://wa.me/${data.brand.waNumber}`} target="_blank" rel="noopener">WhatsApp{data.contoh !== false && data._source !== 'api' ? ' (contoh)' : ''}</a>{socials.map((x) => <a href={x.url} target="_blank" rel="noopener">{x.label}</a>)}</div>
+    {(hasWa || socials.length > 0) && <div class="f-col"><b>Kontak</b>{hasWa && <a href={waLink} target="_blank" rel="noopener">WhatsApp</a>}{socials.map((x) => <a href={x.url} target="_blank" rel="noopener">{x.label}</a>)}</div>}
     <div class="f-col"><b>Pembayaran</b><div class="pays">{data.brand.payments.map((p) => <span>{p}</span>)}</div><small>Bayar di tempat pas ambil.</small></div>
   </div>
-  <div class="f-bot"><span>© 2026 Lizzy Coffee</span><span>Data di halaman ini contoh · peta © OpenStreetMap</span></div>
+  <div class="f-bot"><span>© 2026 Lizzy Coffee</span><span>{hasLoc ? 'Peta © OpenStreetMap' : 'Tangerang Selatan'}</span></div>
 </footer>
 
 <!-- Overlay -->
@@ -259,7 +261,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
     <h3 id="ovT">Pesananmu lagi disiapin</h3>
     <p class="ov-sum" id="ovSum"></p>
     <p class="ov-q">“{data.quote}”</p>
-    <div class="ov-row"><a class="btn wa" id="ovWa" target="_blank" rel="noopener">Buka WhatsApp</a><button class="btn ghost" id="ovClose" type="button">Tutup</button></div>
+    <div class="ov-row">{hasWa && <a class="btn wa" id="ovWa" target="_blank" rel="noopener">Buka WhatsApp</a>}<button class="btn ghost" id="ovClose" type="button">Tutup</button></div>
   </div>
 </div>
 <script>import '../scripts/main.js';</script>

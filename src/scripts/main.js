@@ -5,8 +5,9 @@ import { CustomEase } from 'gsap/CustomEase';
 gsap.registerPlugin(ScrollTrigger, CustomEase);
 CustomEase.create('lzSplit', '0.37,0,0.63,1');
 
-export const WA_NUMBER = '6281200000000'; // placeholder, ganti nomor asli
 const data = JSON.parse(document.getElementById('landing-data').textContent);
+// nomor WA dari data (brand.waNumber); kosong = pre-order belum dibuka
+export const WA_NUMBER = String(data.brand?.waNumber ?? '').replace(/\D/g, '');
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const root = document.documentElement;
 let map, tiles;
@@ -56,8 +57,8 @@ function initMap() {
   if (wide) map.fitBounds(L.latLngBounds([[here.lat, here.lng], me]), { paddingTopLeft: [70, 90], paddingBottomRight: [200, 150], maxZoom: 16 });
   else { map.setView([(here.lat + me[0]) / 2, (here.lng + me[1]) / 2], 14.75, { animate: false }); map.panBy([0, -30], { animate: false }); }
   tiles = L.tileLayer(TILES[root.dataset.theme === 'night' ? 'night' : 'day'], { attribution: ATTR, maxZoom: 19, referrerPolicy: 'strict-origin-when-cross-origin' }).addTo(map);
-  data.titik.filter((t) => t.id !== here.id).forEach((t) => L.marker([t.lat, t.lng], { icon: L.divIcon({ className: '', html: '<div class="lz-spot"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }) }).addTo(map).bindTooltip(t.name + ' (contoh)', { className: 'lz-tip', direction: 'top', offset: [0, -8] }));
-  L.marker(me, { icon: L.divIcon({ className: '', html: '<div class="lz-me"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }) }).addTo(map).bindTooltip('Kamu (contoh)', { className: 'lz-tip', direction: 'bottom', offset: [0, 8] });
+  data.titik.filter((t) => t.id !== here.id).forEach((t) => L.marker([t.lat, t.lng], { icon: L.divIcon({ className: '', html: '<div class="lz-spot"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }) }).addTo(map).bindTooltip(t.name, { className: 'lz-tip', direction: 'top', offset: [0, -8] }));
+  L.marker(me, { icon: L.divIcon({ className: '', html: '<div class="lz-me"></div>', iconSize: [16, 16], iconAnchor: [8, 8] }) }).addTo(map).bindTooltip('Kamu', { className: 'lz-tip', direction: 'bottom', offset: [0, 8] });
   L.polyline([me, [(me[0] + here.lat) / 2 + .0012, (me[1] + here.lng) / 2 - .001], [here.lat, here.lng]], { color: '#b8894a', weight: 3, dashArray: '6 8', lineCap: 'round', smoothFactor: 1 }).addTo(map);
   L.marker([here.lat, here.lng], { icon: L.divIcon({ className: 'lz-pin-wrap', html: '<div class="lz-pin"><span class="ring"></span><img src="img/logo.webp" alt=""></div>', iconSize: [54, 60], iconAnchor: [27, 64] }), zIndexOffset: 1000 }).addTo(map).bindTooltip(here.name, { className: 'lz-tip', direction: 'top', offset: [0, -60] });
 }
@@ -182,7 +183,7 @@ stage.addEventListener('pointermove', (e) => {
   gsap.to(cups[cur].querySelector('.shadow'), { x: -nx * 18, duration: .4 });
 });
 const tiltReset = () => gsap.to(cups[cur], { rotationY: 0, rotationX: 0, x: 0, duration: .6, ease: 'power3.out' });
-$('#pickBtn').addEventListener('click', () => { const r = $(`#poForm input[value="${data.menu[cur].id}"]`); r.checked = true; $('#poForm').other.value = ''; total(); });
+$('#pickBtn')?.addEventListener('click', () => { const r = $(`#poForm input[value="${data.menu[cur].id}"]`); r.checked = true; $('#poForm').other.value = ''; total(); });
 
 /* ---------- brew ---------- */
 function pour() {
@@ -241,6 +242,7 @@ if (!RM) ScrollTrigger.batch('.mitem', { start: 'top 92%', once: true, onEnter: 
 
 /* ---------- form ---------- */
 const form = $('#poForm');
+if (form && WA_NUMBER) {
 const total = () => { const m = form.other.value ? data.menuLengkap.find((x) => x.id === form.other.value) : data.menu.find((x) => x.id === form.drink.value); const q = Math.max(1, Math.min(20, +form.qty.value || 1)); $('#total').textContent = rp(m.price * q); return { m, q }; };
 form.addEventListener('change', (e) => { if (e.target.name === 'drink') form.other.value = ''; total(); });
 form.qty.addEventListener('input', total);
@@ -264,6 +266,7 @@ form.addEventListener('submit', (e) => {
   window.__lastWa = url;
   if (!navigator.webdriver) window.open(url, '_blank', 'noopener');
 });
+}
 $('#ovClose').addEventListener('click', () => { $('#overlay').hidden = true; });
 
 /* ---------- quote typing ---------- */
