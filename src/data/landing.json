@@ -23,27 +23,27 @@
   "menu": [
     {
       "id": "aren",
-      "name": "Kopi Susu Gula Aren",
-      "desc": "Espresso, susu segar, gula aren asli. Manisnya pas, legitnya nempel.",
-      "price": 22000,
+      "name": "Aren's Meow – Kopi Susu Gula Aren",
+      "desc": "Signature Lizzy! Kopi susu gula aren yang creamy dan manisnya pas, like a warm hug from your favorite cat.",
+      "price": 15000,
       "tag": "Signature",
       "img": "cup-aren"
     },
     {
-      "id": "matcha",
-      "name": "Matcha Latte",
-      "desc": "Matcha creamy, lembut, nggak pahit. Buat yang lagi butuh adem.",
-      "price": 25000,
-      "tag": "Best Seller",
-      "img": "cup-matcha"
+      "id": "butterscotch",
+      "name": "Butterscotch Paws – Kopi Susu Butterscotch",
+      "desc": "Signature kopi susu butterscotch: creamy, karamel-buttery, manisnya bikin hati meleleh. Soft paws, big hug.",
+      "price": 28000,
+      "tag": "Signature",
+      "img": "cup-butterscotch"
     },
     {
-      "id": "butterscotch",
-      "name": "Butterscotch Latte",
-      "desc": "Karamel butterscotch gurih ketemu espresso. Wangi banget.",
-      "price": 25000,
-      "tag": "Favorit",
-      "img": "cup-butterscotch"
+      "id": "matcha",
+      "name": "Matcha Whiskers – Matcha Latte Signature",
+      "desc": "Signature non-kopi: matcha latte creamy dan smooth, manisnya pas. Green, gentle, and as soft as whiskers.",
+      "price": 29000,
+      "tag": "Signature",
+      "img": "cup-matcha"
     }
   ],
   "titik": [],
@@ -53,112 +53,157 @@
     {
       "id": "americano",
       "cat": "Kopi",
-      "name": "Lizzy Americano",
-      "desc": "Espresso + air, bold dan bersih.",
-      "price": 18000,
-      "tone": "#3b2116",
-      "soldOut": false
-    },
-    {
-      "id": "kopisusu",
-      "cat": "Kopi",
-      "name": "Kopi Susu Lizzy",
-      "desc": "Espresso, susu segar, sedikit manis.",
+      "name": "Americano – Kopi Hitam Espresso",
+      "desc": "Americano simpel: espresso + air, clean dan bold. Kopi hitam andalan buat yang mau melek tanpa drama.",
       "price": 20000,
-      "tone": "#a9774f",
+      "tone": "#7a4a2c",
       "soldOut": false
     },
     {
-      "id": "aren",
+      "id": "aren-americano",
       "cat": "Kopi",
-      "name": "Kopi Susu Gula Aren",
-      "desc": "Signature: gula aren asli, legit.",
-      "price": 22000,
+      "name": "Aren Americano – Kopi Hitam Gula Aren",
+      "desc": "Kopi hitam americano dengan manis gula aren yang lembut. Ringan, wangi, and still purr-fectly bold.",
+      "price": 20000,
+      "tone": "#7a4a2c",
+      "soldOut": false
+    },
+    {
+      "id": "aren-s-meow",
+      "cat": "Kopi",
+      "name": "Aren's Meow – Kopi Susu Gula Aren",
+      "desc": "Signature Lizzy! Kopi susu gula aren yang creamy dan manisnya pas, like a warm hug from your favorite cat.",
+      "price": 15000,
       "tone": "#7a4a2c",
       "soldOut": false,
       "signature": true
     },
     {
-      "id": "butterscotch",
+      "id": "butterscotch-paws",
       "cat": "Kopi",
-      "name": "Butterscotch Latte",
-      "desc": "Karamel butterscotch gurih + espresso.",
-      "price": 25000,
-      "tone": "#c08a56",
+      "name": "Butterscotch Paws – Kopi Susu Butterscotch",
+      "desc": "Signature kopi susu butterscotch: creamy, karamel-buttery, manisnya bikin hati meleleh. Soft paws, big hug.",
+      "price": 28000,
+      "tone": "#7a4a2c",
       "soldOut": false,
       "signature": true
     },
     {
-      "id": "latte",
+      "id": "dead-eyes",
       "cat": "Kopi",
-      "name": "Café Latte",
-      "desc": "Lembut, creamy, tanpa gula.",
-      "price": 22000,
-      "tone": "#c9a37c",
-      "soldOut": true
-    },
-    {
-      "id": "coldbrew",
-      "cat": "Kopi",
-      "name": "Cold Brew",
-      "desc": "Rendam 12 jam, segar dan ringan.",
+      "name": "Dead Eyes – Kopi Hitam Triple Shot Espresso",
+      "desc": "Buat mata panda: kopi hitam triple shot espresso, extra strong. Night-owl cats, this one's for you.",
       "price": 24000,
-      "tone": "#2c1a12",
+      "tone": "#7a4a2c",
       "soldOut": false
     },
     {
-      "id": "matcha",
+      "id": "espresso-on-the-rocks",
+      "cat": "Kopi",
+      "name": "Espresso on the Rocks – Espresso Dingin Pakai Es",
+      "desc": "Espresso dingin langsung di atas es batu. Pekat, segar, no milk, no fuss. Cool cat energy in a cup.",
+      "price": 24000,
+      "tone": "#7a4a2c",
+      "soldOut": false
+    },
+    {
+      "id": "honey-americano",
+      "cat": "Kopi",
+      "name": "Honey Americano – Kopi Hitam Madu",
+      "desc": "Americano dengan madu asli, manis alami dan hangat. Kopi hitam madu yang lembut, sweet like a sleepy kitten.",
+      "price": 24000,
+      "tone": "#7a4a2c",
+      "soldOut": false
+    },
+    {
+      "id": "latte",
+      "cat": "Kopi",
+      "name": "Latte – Kopi Susu Latte Espresso",
+      "desc": "Latte klasik: espresso dan susu yang creamy dan smooth. Kopi susu cozy buat nemenin hari yang santai.",
+      "price": 24000,
+      "tone": "#7a4a2c",
+      "soldOut": false
+    },
+    {
+      "id": "latte-madu",
+      "cat": "Kopi",
+      "name": "Latte Madu – Kopi Susu Madu (Honey Latte)",
+      "desc": "Honey latte alias kopi susu madu: espresso, susu creamy, dan manis madu yang hangat. Pelukan dalam gelas.",
+      "price": 27000,
+      "tone": "#7a4a2c",
+      "soldOut": false
+    },
+    {
+      "id": "spanish-latte",
+      "cat": "Kopi",
+      "name": "Spanish Latte – Kopi Susu Kental Manis",
+      "desc": "Spanish latte dengan susu kental manis: espresso yang rich, creamy, manis legit. Sweet and a little fancy.",
+      "price": 27000,
+      "tone": "#7a4a2c",
+      "soldOut": false
+    },
+    {
+      "id": "vanilla-americano",
+      "cat": "Kopi",
+      "name": "Vanilla Americano – Kopi Hitam Vanilla",
+      "desc": "Americano dengan sentuhan sirup vanilla yang wangi. Kopi hitam ringan, sedikit manis, super easy to love.",
+      "price": 20000,
+      "tone": "#7a4a2c",
+      "soldOut": false
+    },
+    {
+      "id": "vanilla-latte",
+      "cat": "Kopi",
+      "name": "Vanilla Latte – Kopi Susu Vanilla",
+      "desc": "Vanilla latte yang lembut: espresso, susu creamy, dan wangi vanilla. Kopi susu vanilla, soft like fur.",
+      "price": 27000,
+      "tone": "#7a4a2c",
+      "soldOut": false
+    },
+    {
+      "id": "vietnam-drip",
+      "cat": "Kopi",
+      "name": "Vietnam Drip – Kopi Vietnam Susu Kental Manis",
+      "desc": "Kopi Vietnam drip pakai phin, menetes pelan di atas susu kental manis. Strong, manis, worth the wait.",
+      "price": 24000,
+      "tone": "#7a4a2c",
+      "soldOut": false
+    },
+    {
+      "id": "dirty-matcha",
       "cat": "Non-kopi",
-      "name": "Matcha Latte",
-      "desc": "Matcha creamy, nggak pahit.",
-      "price": 25000,
+      "name": "Dirty Matcha – Matcha Latte Espresso",
+      "desc": "Matcha latte creamy plus satu shot espresso di atasnya. Earthy, bold, a little naughty, like Lizzy.",
+      "price": 29000,
+      "tone": "#7f9a4e",
+      "soldOut": false
+    },
+    {
+      "id": "matcha-aren",
+      "cat": "Non-kopi",
+      "name": "Matcha Aren – Matcha Latte Gula Aren",
+      "desc": "Matcha latte dengan gula aren: earthy, creamy, manisnya hangat khas Indonesia. Green tea with a local hug.",
+      "price": 29000,
+      "tone": "#7f9a4e",
+      "soldOut": false
+    },
+    {
+      "id": "matcha-whiskers",
+      "cat": "Non-kopi",
+      "name": "Matcha Whiskers – Matcha Latte Signature",
+      "desc": "Signature non-kopi: matcha latte creamy dan smooth, manisnya pas. Green, gentle, and as soft as whiskers.",
+      "price": 29000,
       "tone": "#7f9a4e",
       "soldOut": false,
       "signature": true
     },
     {
-      "id": "cokelat",
-      "cat": "Non-kopi",
-      "name": "Cokelat Lizzy",
-      "desc": "Cokelat pekat, susu, manis pas.",
-      "price": 22000,
-      "tone": "#5a3424",
-      "soldOut": false
-    },
-    {
-      "id": "tehtarik",
-      "cat": "Non-kopi",
-      "name": "Teh Tarik",
-      "desc": "Teh hitam + susu, wangi rempah.",
-      "price": 18000,
-      "tone": "#b07a4a",
-      "soldOut": true
-    },
-    {
-      "id": "lemontea",
-      "cat": "Non-kopi",
-      "name": "Lemon Tea",
-      "desc": "Teh dingin + perasan lemon segar.",
-      "price": 16000,
-      "tone": "#d4a24a",
-      "soldOut": false
-    },
-    {
-      "id": "redvelvet",
-      "cat": "Non-kopi",
-      "name": "Red Velvet",
-      "desc": "Manis lembut, warna cantik.",
-      "price": 23000,
-      "tone": "#9c3b40",
-      "soldOut": false
-    },
-    {
-      "id": "croissant",
-      "cat": "Teman ngopi",
-      "name": "Butter Croissant",
-      "desc": "Renyah, buttery, cocok sama latte.",
-      "price": 18000,
-      "tone": "#d7a65e",
+      "id": "trio-bestseller",
+      "cat": "Bundle",
+      "name": "Trio Bestseller – Paket Hemat 3 Signature",
+      "desc": "Aren's Meow, Butterscotch Paws, dan Matcha Whiskers dalam satu paket, hemat 7rb. Three cups, three hugs.",
+      "price": 65000,
+      "tone": "#c08a56",
       "soldOut": false
     }
   ],
@@ -168,7 +213,11 @@
       "type": "lizzy",
       "anim": "push",
       "pose": "cat-push",
-      "cups": ["cup-butterscotch", "cup-aren", "cup-matcha"],
+      "cups": [
+        "cup-butterscotch",
+        "cup-aren",
+        "cup-matcha"
+      ],
       "eyebrow": "Paket hemat",
       "title": "Trio *Bestseller*",
       "desc": "Aren's Meow, Butterscotch Paws, dan Matcha Whiskers dalam satu paket.",
