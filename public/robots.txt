@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://lizzy.my.id/sitemap.xml

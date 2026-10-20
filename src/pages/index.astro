@@ -14,6 +14,34 @@ const data = await getLanding();
 const rp = (n) => 'Rp ' + n.toLocaleString('id-ID').replace(/,/g, '.');
 const t = Object.fromEntries(data.titik.map((x) => [x.id, x]));
 const st = t[data.status.titikId];
+const site = 'https://lizzy.my.id/';
+const desc = `Lizzy Coffee, kopi keliling di Tangerang Selatan (Tangsel). Kopi susu gula aren, matcha latte, butterscotch latte mulai ${rp(Math.min(...data.menuLengkap.map((m) => m.price)))}. Pre-order lewat WhatsApp, ambil tanpa antre.`;
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'CafeOrCoffeeShop',
+  '@id': site + '#lizzy',
+  name: 'Lizzy Coffee',
+  description: desc,
+  url: site,
+  image: site + 'og.jpg',
+  logo: site + 'img/logo.webp',
+  telephone: '+' + data.brand.waNumber,
+  priceRange: 'Rp',
+  servesCuisine: ['Kopi', 'Minuman'],
+  paymentAccepted: data.brand.payments.join(', '),
+  currenciesAccepted: 'IDR',
+  address: { '@type': 'PostalAddress', addressLocality: 'Tangerang Selatan', addressRegion: 'Banten', addressCountry: 'ID' },
+  areaServed: [{ '@type': 'City', name: 'Tangerang Selatan' }],
+  sameAs: [data.brand.instagram, data.brand.tiktok].filter(Boolean),
+  potentialAction: { '@type': 'OrderAction', target: `https://wa.me/${data.brand.waNumber}` },
+  hasMenu: {
+    '@type': 'Menu',
+    hasMenuSection: [...new Set(data.menuLengkap.map((m) => m.cat))].map((c) => ({
+      '@type': 'MenuSection', name: c,
+      hasMenuItem: data.menuLengkap.filter((m) => m.cat === c).map((m) => ({ '@type': 'MenuItem', name: m.name, description: m.desc, offers: { '@type': 'Offer', price: m.price, priceCurrency: 'IDR', availability: m.soldOut ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock' } })),
+    })),
+  },
+};
 const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night: `img/cat-${pose}-n.webp`, cls, alt });
 ---
 <!doctype html>
@@ -21,7 +49,25 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Lizzy Coffee — Kopi enak, di dekatmu</title>
+<title>Lizzy Coffee — Kopi Keliling Tangerang Selatan, Pre-order via WA</title>
+<meta name="description" content={desc} />
+<link rel="canonical" href={site} />
+<meta name="robots" content="index, follow, max-image-preview:large" />
+<meta name="geo.region" content="ID-BT" />
+<meta name="geo.placename" content="Tangerang Selatan" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="id_ID" />
+<meta property="og:site_name" content="Lizzy Coffee" />
+<meta property="og:title" content="Lizzy Coffee — Kopi Keliling Tangerang Selatan" />
+<meta property="og:description" content={desc} />
+<meta property="og:url" content={site} />
+<meta property="og:image" content={`${site}og.jpg`} />
+<meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content={`${site}og.jpg`} />
+<link rel="apple-touch-icon" href="img/logo.webp" />
+<link rel="sitemap" href="/sitemap.xml" />
+<script type="application/ld+json" set:html={JSON.stringify(ld)} />
 <meta name="theme-color" content="#f7f1e6" />
 <link rel="icon" href="img/logo.webp" />
 <script is:inline>
@@ -44,7 +90,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 
 <header class="top">
   <a href="#hero" class="logo"><img src="img/logo.webp" alt="Logo Lizzy Coffee" width="44" height="44" /></a>
-  <div class="brand"><span>LIZZY COFFEE</span><small>kopi keliling · Jakarta Selatan</small></div>
+  <div class="brand"><span>LIZZY COFFEE</span><small>kopi keliling · Tangerang Selatan</small></div>
   <button id="themeBtn" class="mode" type="button" aria-label="Ganti mode"><span class="ic"></span><span class="lbl">Mode malam</span></button>
 </header>
 
@@ -63,7 +109,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
   <picture class="peek swap" data-day={cat('peek').day} data-night={cat('peek').night}><img src={cat('peek').day} alt="Lizzy mengintip" loading="eager" /></picture>
   </div>
   <div class="hero-copy">
-    <p class="eyebrow rv">Kopi keliling · pre-order lewat WA</p>
+    <p class="eyebrow rv">Kopi keliling Tangsel · pre-order lewat WA</p>
     <h1 class="blur-in">Kopi enak,<br/><i>di dekatmu.</i></h1>
     <p class="lead rv">Pesan dulu, ambil tanpa antre. Kopi lebih segar, kamu lebih hemat waktu.</p>
     <div class="cta-row rv"><a href="#preorder" class="btn primary">Pre-order <span>→</span></a><a href="#jadwal" class="btn ghost">Lihat jadwal</a></div>
@@ -190,7 +236,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 
 <footer class="foot">
   <div class="f-grid">
-    <div class="f-brand"><img src="img/logo.webp" alt="Lizzy Coffee" width="56" height="56" class="flogo" /><div><b>LIZZY COFFEE</b><p>Kopi keliling yang dibikin pas kamu pesan. Jakarta Selatan.</p></div></div>
+    <div class="f-brand"><img src="img/logo.webp" alt="Lizzy Coffee" width="56" height="56" class="flogo" /><div><b>LIZZY COFFEE</b><p>Kopi keliling yang dibikin pas kamu pesan. Tangerang Selatan.</p></div></div>
     <nav class="f-col"><b>Jelajah</b><a href="#menu">Signature</a><a href="#menu-lengkap">Menu lengkap</a><a href="#jadwal">Jadwal mangkal</a><a href="#preorder">Pre-order</a></nav>
     <div class="f-col"><b>Kontak</b><a href={`https://wa.me/${data.brand.waNumber}`} target="_blank" rel="noopener">WhatsApp (contoh)</a><a href={data.brand.instagram} target="_blank" rel="noopener">Instagram</a><a href={data.brand.tiktok} target="_blank" rel="noopener">TikTok</a></div>
     <div class="f-col"><b>Pembayaran</b><div class="pays">{data.brand.payments.map((p) => <span>{p}</span>)}</div><small>Bayar di tempat pas ambil.</small></div>
