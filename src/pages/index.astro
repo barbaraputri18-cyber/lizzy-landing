@@ -9,6 +9,7 @@ import '@fontsource/caveat/500.css';
 import 'leaflet/dist/leaflet.css';
 import '../styles/main.css';
 import { getLanding, img, API_BASE } from '../lib/landing.js';
+import { alamatTitik } from '../lib/alamat.js';
 import PromoSlider from '../components/PromoSlider.astro';
 const data = await getLanding();
 const rp = (n) => 'Rp ' + n.toLocaleString('id-ID').replace(/,/g, '.');
@@ -244,14 +245,14 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 <!-- 6. Jadwal -->
 <section id="jadwal" class="jadwal">
   <div class="sec-head"><p class="eyebrow rv">{c.jadwalEyebrow}</p><h2 class="blur-in" set:html={md(c.jadwalTitle)} />{c.jadwalLead && <p class="lead rv">{c.jadwalLead}</p>}</div>
-  {jadwal.length ? <ol class="spots">{jadwal.map((j, i) => <li class="card spot rv"><span class="num">{i + 1}</span><div><b>{t[j.titikId].name}</b><small>{t[j.titikId].address}</small></div><div class="when"><b>{j.days}</b><small>{j.time}</small></div></li>)}</ol> : <div class="map-empty"><div class="map" id="mapJ" data-empty="1" role="region" aria-label="Peta area layanan Tangerang Selatan"><div class="map-fallback"></div></div><div class="soon-wrap"><span class="soon-peek swap" aria-hidden="true" data-day={cat('jump').day} data-night={cat('jump').night}><img src={cat('jump').day} alt="" /></span><div class="card soon rv"><span class="soon-ic" aria-hidden="true"><img src="img/logo.webp" alt="" width="44" height="44" /></span><p class="eyebrow">Lokasi hari ini</p><h3>Jadwal <i>segera diumumkan</i></h3><p class="lead">{soonSub}</p>{(hasWa || ig) && <div class="soon-cta">{hasWa && <a href={waLink} target="_blank" rel="noopener" class="btn wa">Tanya via WhatsApp <span>→</span></a>}{ig && <a href={ig.url} target="_blank" rel="noopener" class="btn ghost">Instagram</a>}</div>}</div></div></div>}
+  {jadwal.length ? <ol class="spots">{jadwal.map((j, i) => <li class="card spot rv"><span class="num">{i + 1}</span><div><b>{t[j.titikId].name}</b><small>{alamatTitik(t[j.titikId])}</small></div><div class="when"><b>{j.days}</b><small>{j.time}</small></div></li>)}</ol> : <div class="map-empty"><div class="map" id="mapJ" data-empty="1" role="region" aria-label="Peta area layanan Tangerang Selatan"><div class="map-fallback"></div></div><div class="soon-wrap"><span class="soon-peek swap" aria-hidden="true" data-day={cat('jump').day} data-night={cat('jump').night}><img src={cat('jump').day} alt="" /></span><div class="card soon rv"><span class="soon-ic" aria-hidden="true"><img src="img/logo.webp" alt="" width="44" height="44" /></span><p class="eyebrow">Lokasi hari ini</p><h3>Jadwal <i>segera diumumkan</i></h3><p class="lead">{soonSub}</p>{(hasWa || ig) && <div class="soon-cta">{hasWa && <a href={waLink} target="_blank" rel="noopener" class="btn wa">Tanya via WhatsApp <span>→</span></a>}{ig && <a href={ig.url} target="_blank" rel="noopener" class="btn ghost">Instagram</a>}</div>}</div></div></div>}
 </section>
 
 <section class="today" id="lokasi-hari-ini" data-today hidden={!today} data-lat={today?.lat} data-lng={today?.lng}>
   <div class="sec-head"><p class="eyebrow">Lokasi hari ini</p><h2>Find Lizzy today.</h2><p class="lead">Lizzy nunggu kamu di sini hari ini.</p></div>
   <div class="card today-card">
     <div class="map today-map" id="mapToday" role="region" aria-label="Peta lokasi Lizzy hari ini"></div>
-    <div class="today-info"><b data-today-name>{today?.name}</b><small data-today-addr>{today?.address}</small>
+    <div class="today-info"><b data-today-name>{today?.name}</b><small data-today-addr>{alamatTitik(today)}</small>
       <a class="btn primary" data-today-dir href={today ? dirUrl(today.lat, today.lng) : '#'} target="_blank" rel="noopener">Petunjuk arah <span>→</span></a></div>
   </div>
 </section>
