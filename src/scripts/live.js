@@ -20,8 +20,10 @@ function apply(s) {
   document.querySelectorAll('[data-until-lbl]').forEach((el) => { el.textContent = hasEta ? 'buka s/d' : 'buka sampai jam'; });
   if (s.openUntil != null) set('until', s.openUntil);
   badge(s);
-  today(s);
-  document.dispatchEvent(new CustomEvent('lz:status', { detail: s }));
+  const shown = today(s);
+  const soon = !shown;
+  soonCards(soon);
+  document.dispatchEvent(new CustomEvent('lz:status', { detail: { ...s, soon } }));
 }
 
 const hhmm = (v) => String(v ?? '').trim().replace(/^(\d{1,2})[:.](\d{2}).*$/, (_, h, m) => `${h.padStart(2, '0')}.${m}`);
@@ -32,19 +34,47 @@ function badge(s) {
   b.classList.toggle('is-open', s.open); b.hidden = false;
 }
 
+
+// ---- Jadwal hari ini: 'Senin–Jumat', 'Sabtu, Minggu', 'Setiap hari'. Tidak terbaca = anggap cocok (jangan sembunyikan). ----
+const HARI = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+const jadwalL = (() => { try { return JSON.parse(document.getElementById('landing-data').textContent).jadwal || []; } catch { return []; } })();
+function hariCocok(days, d) {
+  const str = String(days ?? '').toLowerCase().replace(/jum'?at/g, 'jumat');
+  if (!str.trim() || /setiap|tiap hari|everyday|daily/.test(str)) return null;
+  let found = false, hit = false;
+  for (const part of str.split(/[,&]|\bdan\b/)) {
+    const r = part.split(/\s*(?:–|—|-|s\/d|sampai)\s*/).map((x) => HARI.findIndex((h) => x.includes(h)));
+    if (r.length >= 2 && r[0] >= 0 && r[r.length - 1] >= 0) { found = true; const a = r[0], b = r[r.length - 1]; if (a <= b ? d >= a && d <= b : d >= a || d <= b) hit = true; }
+    else if (r[0] >= 0) { found = true; if (r[0] === d) hit = true; }
+  }
+  return found ? hit : null;
+}
+function jadwalHariIni(t) {
+  const js = jadwalL.filter((j) => String(j.titikId) === String(t.id));
+  if (!js.length) return true;
+  const d = new Date().getDay();
+  const res = js.map((j) => hariCocok(j.days, d));
+  return res.some((r) => r !== false);
+}
+// ---- Kartu 'Jadwal segera diumumkan' di slot Lokasi hari ini (kalau jadwal kosong, kartu di section jadwal sudah ada) ----
+function soonCards(soon) {
+  document.querySelectorAll('[data-today-soon]').forEach((el) => { el.hidden = !soon || el.dataset.hasJadwal !== '1'; });
+}
+
 // ---- Find Lizzy today (peta + petunjuk arah); tanpa titik = section tetap hidden ----
 let tMap, tMark;
 function today(s) {
-  const sec = document.querySelector('[data-today]'); if (!sec) return;
+  const sec = document.querySelector('[data-today]'); if (!sec) return false;
   const t = s.titikId != null ? titik.find((x) => String(x.id) === String(s.titikId)) : null;
   const lat = Number.isFinite(+s.lat) && s.lat !== null ? +s.lat : t ? +t.lat : NaN;
   const lng = Number.isFinite(+s.lng) && s.lng !== null ? +s.lng : t ? +t.lng : NaN;
-  if (s.open === false || !Number.isFinite(lat) || !Number.isFinite(lng)) { sec.hidden = true; return; }
+  if (s.open === false || !Number.isFinite(lat) || !Number.isFinite(lng) || (t && !jadwalHariIni(t))) { sec.hidden = true; return false; }
   sec.hidden = false; sec.dataset.lat = lat; sec.dataset.lng = lng;
   const nm = sec.querySelector('[data-today-name]'), ad = sec.querySelector('[data-today-addr]');
   if (t) { nm.textContent = t.name; ad.textContent = alamatTitik(t); }
   sec.querySelector('[data-today-dir]').href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   drawToday(sec, lat, lng);
+  return true;
 }
 function drawToday(sec, lat, lng) {
   const el = sec.querySelector('#mapToday'); if (!el) return;
