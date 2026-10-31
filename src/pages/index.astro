@@ -11,9 +11,12 @@ import '../styles/main.css';
 import { getLanding, img, API_BASE } from '../lib/landing.js';
 import { alamatTitik } from '../lib/alamat.js';
 import PromoSlider from '../components/PromoSlider.astro';
+import SocialLink from '../components/SocialLink.astro';
+import { socialLinks } from '../lib/socials.js';
 const data = await getLanding();
 const rp = (n) => 'Rp ' + n.toLocaleString('id-ID').replace(/,/g, '.');
-const socials = (data.brand.socials ?? [{ label: 'Instagram', url: data.brand.instagram }, { label: 'TikTok', url: data.brand.tiktok }]).filter((x) => x && x.url);
+// brand.socials (API) -> url divalidasi (http/https/mailto/tel) + platform/ikon dideteksi dari label atau domain
+const socials = socialLinks(data.brand.socials ?? [{ label: 'Instagram', url: data.brand.instagram }, { label: 'TikTok', url: data.brand.tiktok }]);
 const t = Object.fromEntries(data.titik.map((x) => [x.id, x]));
 const st = t[data.status?.titikId] ?? data.titik[0];
 const jadwal = data.jadwal.filter((j) => t[j.titikId]);
@@ -281,7 +284,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
       <p class="lead">{hasWa ? c.closeLead : c.closeLeadNoWa}</p>
       {jadwal.length > 0 && <ul class="c-next">{jadwal.map((j, i) => <li class={i === 0 ? 'now' : ''}><span class="cdot"></span><b>{t[j.titikId].name}</b><small>{j.days} · {j.time}</small>{i === 0 && <em>hari ini</em>}</li>)}</ul>}
       {hasWa ? <div class="c-cta"><a href="#preorder" class="btn primary">Pre-order sekarang <span>→</span></a><a href={waLink} target="_blank" rel="noopener" class="btn ghost">Chat WhatsApp</a></div> : <p class="soon-note">Pre-order segera dibuka</p>}
-      <div class="c-soc">{socials.map((x) => <a href={x.url} target="_blank" rel="noopener">{x.label}</a>)}<span>jadwal bisa berubah</span></div>
+      <div class="c-soc">{socials.map((x) => <SocialLink s={x} />)}<span>jadwal bisa berubah</span></div>
     </div>
   </div>
 </section>
@@ -291,7 +294,7 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
   <div class="f-grid">
     <div class="f-brand"><img src="img/logo.webp" alt="Lizzy Coffee" width="56" height="56" class="flogo" /><div><b>LIZZY COFFEE</b><p>{c.footBrand}</p></div></div>
     <nav class="f-col"><b>Jelajah</b><a href="#menu">Signature</a><a href="#menu-lengkap">Menu lengkap</a><a href="#jadwal">Jadwal mangkal</a><a href="#preorder">Pre-order</a></nav>
-    {(hasWa || socials.length > 0) && <div class="f-col"><b>Kontak</b>{hasWa && <a href={waLink} target="_blank" rel="noopener">WhatsApp</a>}{socials.map((x) => <a href={x.url} target="_blank" rel="noopener">{x.label}</a>)}</div>}
+    {(hasWa || socials.length > 0) && <div class="f-col"><b>Kontak</b>{hasWa && <SocialLink s={socialLinks([{ label: 'WhatsApp', url: waLink }])[0]} />}{socials.filter((x) => !(hasWa && x.key === 'whatsapp' && x.url.replace(/\/$/, '') === waLink)).map((x) => <SocialLink s={x} />)}</div>}
     <div class="f-col"><b>Pembayaran</b><div class="pays">{data.brand.payments.map((p) => <span>{p}</span>)}</div><small>Bayar di tempat pas ambil.</small></div>
   </div>
   <div class="f-bot"><span>© 2026 Lizzy Coffee</span><span>{hasLoc ? 'Peta © OpenStreetMap' : 'Tangerang Selatan'}</span></div>
