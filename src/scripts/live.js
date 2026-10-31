@@ -2,6 +2,7 @@
 // /api/public/status di-poll tiap 60 detik; /api/public/landing sekali saat load (soldOut per menu).
 // Gagal (CORS/jaringan) = diam: badge tetap hidden, data build-time dipakai.
 import L from 'leaflet';
+import { alamatTitik } from '../lib/alamat.js';
 const API = (window.LZ_API || 'https://coffe.lizzy.my.id/api/public').replace(/\/$/, '');
 const KEY = 'lz-status';
 const titik = (() => { try { return JSON.parse(document.getElementById('landing-data').textContent).titik || []; } catch { return []; } })();
@@ -41,7 +42,7 @@ function today(s) {
   if (s.open === false || !Number.isFinite(lat) || !Number.isFinite(lng)) { sec.hidden = true; return; }
   sec.hidden = false; sec.dataset.lat = lat; sec.dataset.lng = lng;
   const nm = sec.querySelector('[data-today-name]'), ad = sec.querySelector('[data-today-addr]');
-  if (t) { nm.textContent = t.name; ad.textContent = t.address ?? ''; }
+  if (t) { nm.textContent = t.name; ad.textContent = alamatTitik(t); }
   sec.querySelector('[data-today-dir]').href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   drawToday(sec, lat, lng);
 }
