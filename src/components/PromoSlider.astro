@@ -1,5 +1,6 @@
 ---
 import { getLanding, img } from '../lib/landing.js';
+import { alamatTitik } from '../lib/alamat.js';
 const data = await getLanding();
 const D = data as any;
 // location promos are data-driven: title/label/hours come from titik + jadwal
@@ -11,12 +12,17 @@ const soon = (p: any) => ({ ...p, eyebrow: 'Lokasi', title: 'Jadwal *segera dium
 const promos = (D.promos ?? []).map((p: any) => {
   const loc = p.titikId || p.type === 'location' || p.type === 'lokasi';
   if (!loc) return p;
-  const t = titik.find((x: any) => x.id === p.titikId), j = jadwalL.find((x: any) => x.titikId === p.titikId);
+  // titikId bisa basi (mis. "t2" dari landing.json vs id prod "1") -> pakai titik aktif pertama
+  const aktif = (x: any) => x && x.active !== false && x.is_active !== false && x.aktif !== false && x.status !== 'nonaktif';
+  const same = (a: any, b: any) => a != null && b != null && String(a) === String(b);
+  const t = titik.find((x: any) => same(x.id, p.titikId)) ?? titik.find(aktif);
+  const j = t ? jadwalL.find((x: any) => same(x.titikId, t.id)) : undefined;
   if (!t) return soon(p);
   const place = t.name.replace(/^Titik\s*\d+\s*/i, '');
-  const day = j?.days?.includes('–') ? 'Minggu' : (j?.days ?? '');
+  const multi = /[–,-]/.test(j?.days ?? '') || !j?.days;
+  const day = multi ? 'Minggu' : j.days;
   const hours = (j?.time ?? '').replace(/\s*–\s*/g, '–');
-  return { ...p, title: p.title ?? `${j?.days?.includes('–') ? 'Minggu ini' : day + ' ini'} di *${place}*`, desc: p.desc ?? `${t.name} · ${hours}`, address: t.address, place };
+  return { ...p, title: p.title ?? `${day} ini di *${place}*`, desc: p.desc ?? `${t.name} · ${hours}`, address: alamatTitik(t), place };
 });
 const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const md = (s = '') => esc(s).replace(/&lt;br\s*\/?&gt;/gi, '<br/>').replace(/\*(.+?)\*/g, '<i>$1</i>');
