@@ -482,3 +482,7 @@ a.ojol-btn:active{transform:scale(.97)}
 .today-info{display:grid;gap:6px;padding:16px 18px 18px}.today-info b{font:500 22px/1.2 var(--serif)}.today-info small{color:var(--ink2)}.today-info .btn{margin-top:8px;justify-self:start}
 @media (min-width:960px){.today{padding:60px max(40px,calc((100vw - 1400px)/2))}.today-card{grid-template-columns:1.6fr 1fr;align-items:center}.today-map{height:340px}.today-info{padding:28px}}
 .today-info b:empty,.today-info small:empty{display:none}
+
+/* link sosial + ikon otomatis (src/lib/socials.js) */
+.soc{display:inline-flex;align-items:center;gap:7px}.soc-ic{flex:none;width:16px;height:16px}
+.f-col a.soc{justify-self:start}.c-soc a.soc{gap:6px}.c-soc .soc-ic{width:14px;height:14px}
