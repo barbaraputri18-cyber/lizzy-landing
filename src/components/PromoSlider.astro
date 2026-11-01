@@ -7,8 +7,9 @@ const D = data as any;
 const titik = D.titik ?? [], jadwalL = D.jadwal ?? [];
 const waNum = String(D.brand?.waNumber ?? '').replace(/\D/g, '');
 const wa = waNum.length >= 8 ? `https://wa.me/${waNum}` : '';
+const SOON_SUB = 'Pantau halaman ini ya, lokasi segera diumumkan.';
 // lokasi tanpa titik -> 'Jadwal segera diumumkan' + CTA WhatsApp
-const soon = (p: any) => ({ ...p, eyebrow: 'Lokasi', title: 'Jadwal *segera diumumkan*', desc: wa ? 'Cek WhatsApp buat lokasi hari ini.' : 'Pantau terus ya, lokasi segera diumumkan.', cta: wa ? 'Tanya via WhatsApp' : '', href: wa, external: true, place: 'Segera', soon: true });
+const soon = (p: any) => ({ ...p, eyebrow: 'Lokasi', title: 'Jadwal *segera diumumkan*', desc: SOON_SUB, cta: wa ? 'Tanya via WhatsApp' : '', href: wa, external: true, place: 'Segera', soon: true });
 const promos = (D.promos ?? []).map((p: any) => {
   const loc = p.titikId || p.type === 'location' || p.type === 'lokasi';
   if (!loc) return p;
@@ -22,7 +23,8 @@ const promos = (D.promos ?? []).map((p: any) => {
   const multi = /[–,-]/.test(j?.days ?? '') || !j?.days;
   const day = multi ? 'Minggu' : j.days;
   const hours = (j?.time ?? '').replace(/\s*–\s*/g, '–');
-  return { ...p, title: p.title ?? `${day} ini di *${place}*`, desc: p.desc ?? `${t.name} · ${hours}`, address: alamatTitik(t), place };
+  // alt = varian 'segera diumumkan' yang di-toggle client-side saat status live tutup / di luar jam buka
+  return { ...p, title: p.title ?? `${day} ini di *${place}*`, desc: p.desc ?? `${t.name} · ${hours}`, address: alamatTitik(t), place, alt: soon(p) };
 });
 const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const md = (s = '') => esc(s).replace(/&lt;br\s*\/?&gt;/gi, '<br/>').replace(/\*(.+?)\*/g, '<i>$1</i>');
@@ -40,13 +42,19 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
           </a>
         ) : (
           <div class="ps-inner">
-            <div class="ps-copy">
+            <div class="ps-copy" data-loc-copy={p.alt ? 'live' : undefined}>
               <p class="eyebrow">{p.eyebrow}</p>
               <h2 set:html={md(p.title)} />
               <p class="lead">{p.desc}</p>
               {p.priceOld && <p class="ps-price"><s><span>{rp(p.priceOld)}</span><i class="ps-strike" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none"><path class="cl1" d="M6 24 Q42 21 90 4 Q46 13 6 24Z"/><path class="cl2" d="M2 32 Q48 29 97 10 Q51 20 2 32Z"/><path class="cl3" d="M11 39 Q49 36 91 19 Q53 28.5 11 39Z"/></svg></i></s><b>{rp(p.priceNew)}</b></p>}
               {p.cta && p.href && !(p.href === '#preorder' && !wa) && <a class="btn primary" href={p.href} {...(p.external ? { target: '_blank', rel: 'noopener' } : {})}>{p.cta}</a>}
             </div>
+            {p.alt && <div class="ps-copy" data-loc-copy="soon" hidden>
+              <p class="eyebrow">{p.alt.eyebrow}</p>
+              <h2 set:html={md(p.alt.title)} />
+              <p class="lead">{p.alt.desc}</p>
+              {p.alt.cta && p.alt.href && <a class="btn primary" href={p.alt.href} target="_blank" rel="noopener">{p.alt.cta}</a>}
+            </div>}
             <div class="ps-stage">
               {p.anim === 'lie' && (
                 <div class="ps-minimap" aria-hidden="true">
@@ -55,7 +63,7 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
                     <g class="mm-roads"><path d="M-10 56 C80 50 180 62 310 54"/><path d="M-10 118 C100 112 200 122 310 112"/><path d="M64 -10 C70 80 58 140 74 210"/><path d="M222 -10 C214 70 232 140 220 210"/><path class="thin" d="M144 -10 C150 60 140 140 162 210"/></g>
                     <path class="mm-route" d="M30 190 C70 150 120 140 160 118 S196 92 196 86"/>
                   </svg>
-                  <span class="mm-label">{p.place}</span>
+                  <span class="mm-label" data-loc-place={p.alt ? p.place : undefined}>{p.place}</span>
                   <span class="mm-spot"><i class="mm-ring"></i><i class="mm-ring r2"></i></span>
                   <svg class="ps-pin" viewBox="0 0 24 32"><path d="M12 0C5.4 0 0 5.2 0 11.7 0 20.5 12 32 12 32s12-11.5 12-20.3C24 5.2 18.6 0 12 0z"/><circle cx="12" cy="11.5" r="4.5"/></svg>
                 </div>
@@ -85,6 +93,7 @@ const rp = (n: number) => 'Rp' + n.toLocaleString('id-ID');
 .ps-slide{position:absolute;inset:0;opacity:0;visibility:hidden}
 .ps-slide.on{opacity:1;visibility:visible}
 .ps-inner{height:100%;max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:32px;padding:26px clamp(20px,5vw,72px) 56px}
+.ps-copy[hidden]{display:none!important}
 .ps-copy{display:grid;gap:14px;align-content:center;max-width:520px}
 .ps-copy h2{font-size:clamp(28px,3vw,48px)}
 .ps-copy h2 :global(i){font-style:italic;color:var(--gold)}
@@ -298,6 +307,12 @@ if (root) {
   root.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1)); });
   document.addEventListener('visibilitychange', () => document.hidden ? prog?.pause() : !reduce && visible && prog?.resume());
 
+  // titik lagi nggak aktif / di luar jam buka (live.js kirim lz:status + detail.soon) -> varian 'Jadwal segera diumumkan'
+  document.addEventListener('lz:status', (e: Event) => {
+    const soon = !!(e as CustomEvent).detail?.soon;
+    root.querySelectorAll<HTMLElement>('[data-loc-copy]').forEach((el) => { el.hidden = (el.dataset.locCopy === 'soon') !== soon; });
+    root.querySelectorAll<HTMLElement>('[data-loc-place]').forEach((el) => { el.textContent = soon ? 'Segera' : el.dataset.locPlace!; });
+  });
   const sync = () => { const n = document.documentElement.dataset.theme === 'night'; root.querySelectorAll<HTMLImageElement>('img[data-day]').forEach(im => { im.src = (n ? im.dataset.night : im.dataset.day)!; }); };
   new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   sync(); go(0); if (!visible) { tl?.progress(1).pause(); }

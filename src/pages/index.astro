@@ -23,7 +23,8 @@ const waNum = String(data.brand?.waNumber ?? '').replace(/\D/g, '');
 const hasWa = waNum.length >= 8;
 const waLink = hasWa ? `https://wa.me/${waNum}` : '';
 const ig = socials.find((x) => /instagram/i.test(x.label + x.url));
-const soonSub = hasWa && ig ? 'Cek WhatsApp atau Instagram buat lokasi hari ini.' : hasWa ? 'Cek WhatsApp buat lokasi hari ini.' : ig ? 'Cek Instagram buat lokasi hari ini.' : 'Pantau halaman ini ya, lokasi segera diumumkan.';
+// Tri: copy kartu 'segera diumumkan' selalu sama (titik kosong / di luar jam buka); CTA WA/IG tetap muncul kalau ada
+const soonSub = 'Pantau halaman ini ya, lokasi segera diumumkan.';
 const site = 'https://lizzy.my.id/';
 const c = data.copy ?? {};
 // menu lengkap: satu kategori per tab (default Kopi); di mobile cuma M_FOLD item pertama + toggle. Semua item tetap di DOM.
@@ -33,6 +34,8 @@ const M_FOLD = 6;
 const mIdx = (m) => data.menuLengkap.filter((x) => x.cat === m.cat).indexOf(m);
 // Find Lizzy today: titik dari status (build-time); live.js bisa isi/ubah dari /api/public/status
 const today = st && data.status?.titikId != null && Number.isFinite(+st.lat) && Number.isFinite(+st.lng) ? st : null;
+// Kartu 'segera diumumkan' di slot Lokasi hari ini: tampil kalau today kosong (live.js toggle per poll status).
+// Kalau jadwal kosong, section jadwal sudah menampilkan kartu yang sama -> slot ini nggak ditampilkan (hindari dobel).
 const dirUrl = (lat, lng) => `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const md = (x = '') => esc(x).replace(/&lt;br\s*\/?&gt;/gi, '<br/>').replace(/\*(.+?)\*/g, '<i>$1</i>');
@@ -246,6 +249,10 @@ const cat = (pose, cls = '', alt = '') => ({ day: `img/cat-${pose}.webp`, night:
 <section id="jadwal" class="jadwal">
   <div class="sec-head"><p class="eyebrow rv">{c.jadwalEyebrow}</p><h2 class="blur-in" set:html={md(c.jadwalTitle)} />{c.jadwalLead && <p class="lead rv">{c.jadwalLead}</p>}</div>
   {jadwal.length ? <ol class="spots">{jadwal.map((j, i) => <li class="card spot rv"><span class="num">{i + 1}</span><div><b>{t[j.titikId].name}</b><small>{alamatTitik(t[j.titikId])}</small></div><div class="when"><b>{j.days}</b><small>{j.time}</small></div></li>)}</ol> : <div class="map-empty"><div class="map" id="mapJ" data-empty="1" role="region" aria-label="Peta area layanan Tangerang Selatan"><div class="map-fallback"></div></div><div class="soon-wrap"><span class="soon-peek swap" aria-hidden="true" data-day={cat('jump').day} data-night={cat('jump').night}><img src={cat('jump').day} alt="" /></span><div class="card soon rv"><span class="soon-ic" aria-hidden="true"><img src="img/logo.webp" alt="" width="44" height="44" /></span><p class="eyebrow">Lokasi hari ini</p><h3>Jadwal <i>segera diumumkan</i></h3><p class="lead">{soonSub}</p>{(hasWa || ig) && <div class="soon-cta">{hasWa && <a href={waLink} target="_blank" rel="noopener" class="btn wa">Tanya via WhatsApp <span>→</span></a>}{ig && <a href={ig.url} target="_blank" rel="noopener" class="btn ghost">Instagram</a>}</div>}</div></div></div>}
+</section>
+
+<section class="today today-soon" data-today-soon hidden={!!today || !jadwal.length} data-has-jadwal={jadwal.length ? '1' : '0'}>
+  <div class="soon-wrap"><span class="soon-peek swap" aria-hidden="true" data-day={cat('jump').day} data-night={cat('jump').night}><img src={cat('jump').day} alt="" /></span><div class="card soon"><span class="soon-ic" aria-hidden="true"><img src="img/logo.webp" alt="" width="44" height="44" /></span><p class="eyebrow">Lokasi hari ini</p><h3>Jadwal <i>segera diumumkan</i></h3><p class="lead">{soonSub}</p>{(hasWa || ig) && <div class="soon-cta">{hasWa && <a href={waLink} target="_blank" rel="noopener" class="btn wa">Tanya via WhatsApp <span>→</span></a>}{ig && <a href={ig.url} target="_blank" rel="noopener" class="btn ghost">Instagram</a>}</div>}</div></div>
 </section>
 
 <section class="today" id="lokasi-hari-ini" data-today hidden={!today} data-lat={today?.lat} data-lng={today?.lng}>
